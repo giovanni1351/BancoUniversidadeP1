@@ -15,7 +15,7 @@
 ```mermaid
 erDiagram
     DisciplinasAlunos }| -- || Alunos: Possui
-    Alunos ||--|{ Curso : Cadastrado_em
+    Alunos }|--|| Curso : Cadastrado_em
     Professores_Disciplinas }| -- || Disciplinas : Lecionado_Por
     Professores_Disciplinas }| -- || Professores : Leciona
     DisciplinasAlunos }| -- || Disciplinas: Possui
@@ -33,6 +33,7 @@ erDiagram
 
     Alunos {
         int id PK
+        int id FK
         string nome
         string registro
         string sexo
@@ -135,6 +136,7 @@ erDiagram
 --- 
 ## Alunos 
 - int id PK
+- int id FK
 - string nome
 - string registro
 - string sexo
@@ -230,3 +232,5 @@ erDiagram
 - int semestre_ano PK
 - int semestre_curso PK
 - string periodo PK
+
+
