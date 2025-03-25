@@ -9,21 +9,21 @@
 
 ```mermaid
 erDiagram
-    Alunos ||--|{ Curso : Cadastrado_em
     DisciplinasAlunos }| -- || Alunos: Possui
-    DisciplinasAlunos }| -- || Disciplinas: Possui
-    Professores_Disciplinas }| -- || Professores : Leciona
+    Alunos ||--|{ Curso : Cadastrado_em
     Professores_Disciplinas }| -- || Disciplinas : Lecionado_Por
+    Professores_Disciplinas }| -- || Professores : Leciona
+    DisciplinasAlunos }| -- || Disciplinas: Possui
 
-    Departamento ||--|{ Disciplinas: Possui
     Tcc }o--|| Professores: Possui
     Tcc ||--|{ Alunos: Possui
     Historico_Escolar }| -- || Disciplinas : Possui
     Prof_Depart }| -- || Professores : Possui
     Prof_Depart }| -- || Departamento : Possui
-    Matriz_Curricular }| -- || Curso: Possui
+    Departamento ||--|{ Disciplinas: Possui
     Matriz_Curricular }| -- || Disciplinas: Possui
     Aluno_Historico_Escolar}| -- || Alunos : Possui
+    Matriz_Curricular }| -- || Curso: Possui
     Aluno_Historico_Escolar}| -- || Historico_Escolar : Possui
 
     Alunos {
