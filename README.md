@@ -52,6 +52,7 @@ erDiagram
         string sexo
         date data_nascimento
         date data_contratacao
+        bool flag_ativo
     }
     
     Disciplinas {
