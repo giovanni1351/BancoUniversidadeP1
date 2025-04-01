@@ -48,3 +48,13 @@ create table public.DisciplinasAlunos(
 	semestre_curso int not null,
 	primary key(id_disciplina,id_aluno,ano,semestre_ano,semestre_curso)
 )
+
+create table public.Historico_Escolar(
+   id serial not null primary key 
+  ,id_aluno int not null
+  ,id_disciplina int not null
+  ,nota float not null
+  ,status varchar(255) not null
+  ,data_conclusao date not null
+  ,semestre int not null 
+)
