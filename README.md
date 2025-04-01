@@ -87,7 +87,6 @@ erDiagram
     
     Historico_Escolar {
         int id PK
-        int id_aluno FK
         int id_disciplina FK
         float nota
         string status
@@ -190,7 +189,6 @@ erDiagram
 
 ## Historico_Escolar 
 - int id PK
-- int id_aluno FK
 - int id_disciplina FK
 - float nota
 - string status
