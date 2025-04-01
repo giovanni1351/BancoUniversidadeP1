@@ -58,3 +58,12 @@ create table public.Historico_Escolar(
   ,data_conclusao date not null
   ,semestre int not null 
 )
+
+create table public.Matriz_Curricular(
+	id_curso int not null,
+	id_disciplina int not null,
+	semestre int not null,
+	primary key (id_curso,id_disciplina,semestre)
+)
+
+
