@@ -30,5 +30,13 @@ create table public.disciplinas(
 	id_departamento int
 )
 
+create table public.Professores_Disciplinas(
+	id_disciplina int not null,
+	id_professor int not null,
+	semestre int not null,
+	ano int not null,
+	periodo VARCHAR(255) not null,
+	primary key (id_disciplina,id_professor,semestre,ano,periodo)
+) 
 
 
