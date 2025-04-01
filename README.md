@@ -55,7 +55,6 @@ erDiagram
     
     Disciplinas {
         int id PK
-        int id FK
         string codigo
         string nome
         int carga_horaria
@@ -104,7 +103,9 @@ erDiagram
     }
     Professores_Disciplinas {
         int id_disciplina PK
+        int id_disciplina FK
         int id_professor PK
+        int id_professor FK
         int semestre PK
         int ano PK
         string periodo PK
@@ -156,7 +157,6 @@ erDiagram
 
 ## Disciplinas 
 - int id PK
-- int id FK
 - string codigo
 - string nome
 - int carga_horaria
