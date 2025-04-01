@@ -40,3 +40,11 @@ create table public.Professores_Disciplinas(
 ) 
 
 
+create table public.DisciplinasAlunos(
+	id_disciplina int not null,
+	id_aluno int not null,
+	ano int not null,
+	semestre_ano int not null,
+	semestre_curso int not null,
+	primary key(id_disciplina,id_aluno,ano,semestre_ano,semestre_curso)
+)
