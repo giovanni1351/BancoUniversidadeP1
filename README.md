@@ -33,7 +33,6 @@ erDiagram
 
     Alunos {
         int id PK
-        int id FK
         string nome
         string registro
         string sexo
@@ -97,7 +96,9 @@ erDiagram
     }   
     Prof_Depart {
         int id_professor PK
+        int id_professor FK
         int id_departamento PK
+        int id_departamento FK
 
     }
     Professores_Disciplinas {
@@ -117,7 +118,9 @@ erDiagram
     }
     Aluno_Historico_Escolar{
         int id_Aluno PK
+        int id_Aluno FK
         int id_Historico_Escolar PK
+        int id_Historico_Escolar FK
 
 
     }
@@ -134,7 +137,6 @@ erDiagram
 --- 
 ## Alunos 
 - int id PK
-- int id FK
 - string nome
 - string registro
 - string sexo
@@ -197,7 +199,9 @@ erDiagram
 
 ## Prof_Depart 
 - int id_professor PK
+- int id_professor FK
 - int id_departamento PK
+- int id_departamento FK
 
 
 ## Professores_Disciplinas 
@@ -215,7 +219,9 @@ erDiagram
 
 ## Aluno_Historico_Escolar
 - int id_Aluno PK
+- int id_Aluno FK
 - int id_Historico_Escolar PK
+- int id_Historico_Escolar FK
 
 
 ## DisciplinasAlunos 
