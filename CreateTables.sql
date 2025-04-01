@@ -72,3 +72,9 @@ create table public.Curso(
   ,codigo varchar(255) not null
   ,duracao_semestre int not null
 )
+	
+create table public.Professor_Departamento(
+	id_professor int not null,
+	id_departamento int not null,
+	primary key(id_professor,id_departamento)
+)
