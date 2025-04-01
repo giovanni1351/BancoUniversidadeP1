@@ -12,7 +12,7 @@ create table public.Alunos(
 	
 )
 
-create table public.professores(
+;create table public.professores(
 	id SERIAL not null primary key,
 	nome VARCHAR(100) not null,
 	registro VARCHAR(10) not null,
@@ -22,7 +22,7 @@ create table public.professores(
 	flag_ativo boolean default true not null 
 )
 
-create table public.disciplinas(
+;create table public.disciplinas(
 	id SERIAL not null primary key,
 	nome VARCHAR(100) not null,
 	carga_horaria int not null,
@@ -30,7 +30,7 @@ create table public.disciplinas(
 	id_departamento int
 )
 
-create table public.Professores_Disciplinas(
+;create table public.Professores_Disciplinas(
 	id_disciplina int not null,
 	id_professor int not null,
 	semestre int not null,
@@ -40,7 +40,7 @@ create table public.Professores_Disciplinas(
 ) 
 
 
-create table public.DisciplinasAlunos(
+;create table public.DisciplinasAlunos(
 	id_disciplina int not null,
 	id_aluno int not null,
 	ano int not null,
@@ -49,7 +49,7 @@ create table public.DisciplinasAlunos(
 	primary key(id_disciplina,id_aluno,ano,semestre_ano,semestre_curso)
 )
 
-create table public.Historico_Escolar(
+;create table public.Historico_Escolar(
 	   id serial not null primary key 
 	  ,id_disciplina int not null
 	  ,nota float not null
@@ -58,34 +58,34 @@ create table public.Historico_Escolar(
 	  ,semestre int not null 
 )
 
-create table public.Matriz_Curricular(
+;create table public.Matriz_Curricular(
 	id_curso int not null,
 	id_disciplina int not null,
 	semestre int not null,
 	primary key (id_curso,id_disciplina,semestre)
 )
 
-create table public.Curso(
+;create table public.Curso(
 	   id serial not null primary key 
 	  ,nome varchar(255) not null
 	  ,codigo varchar(255) not null
 	  ,duracao_semestre int not null
 )
 	
-create table public.Professor_Departamento(
+;create table public.Professor_Departamento(
 	id_professor int not null,
 	id_departamento int not null,
 	primary key(id_professor,id_departamento)
 )
 
-create table public.Departamento(
+;create table public.Departamento(
 	id SERIAL not null primary key,
 	nome varchar(255) not null,
 	codigo varchar(10) not null,
 	localizacao varchar(255) not null
 )
 
-create table public.Tcc(
+;create table public.Tcc(
 	   id serial not null primary key 
 	  ,id_professor int not null
 	  ,titulo varchar(255) not null
@@ -93,7 +93,7 @@ create table public.Tcc(
 	  ,tema varchar(255) not null
 )
 
-create table public.Aluno_Historico_Escolar(
+;create table public.Aluno_Historico_Escolar(
 	id_aluno int not null,
 	id_historico_escolar int not null,
 	primary key(id_aluno,id_historico_escolar)
