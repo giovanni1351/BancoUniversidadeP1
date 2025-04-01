@@ -132,6 +132,8 @@ erDiagram
 
     }
 ```
+![image](https://github.com/user-attachments/assets/9068ae73-7ac2-419d-9841-82726bca45ea)
+
 --- 
 ## Alunos 
 - int id PK
