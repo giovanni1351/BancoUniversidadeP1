@@ -66,4 +66,9 @@ create table public.Matriz_Curricular(
 	primary key (id_curso,id_disciplina,semestre)
 )
 
-
+create table public.Curso(
+   id serial not null primary key 
+  ,nome varchar(255) not null
+  ,codigo varchar(255) not null
+  ,duracao_semestre int not null
+)
