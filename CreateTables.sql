@@ -93,3 +93,9 @@ create table public.Tcc(
 	  ,nota float not null
 	  ,tema varchar(255) not null
 )
+
+create table public.Aluno_Historico_Escolar(
+	id_aluno int not null,
+	id_historico_escolar int not null,
+	primary key(id_aluno,id_historico_escolar)
+)
