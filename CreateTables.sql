@@ -78,3 +78,9 @@ create table public.Professor_Departamento(
 	id_departamento int not null,
 	primary key(id_professor,id_departamento)
 )
+create table public.Departamento(
+	id SERIAL not null primary key,
+	nome varchar(255) not null,
+	codigo varchar(10) not null,
+	localizacao varchar(255) not null
+)
