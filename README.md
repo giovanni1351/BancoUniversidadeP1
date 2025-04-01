@@ -64,7 +64,6 @@ erDiagram
     
     Curso {
         int id PK
-        int id FK
         string nome
         string codigo
         int duracao_semestres
@@ -166,7 +165,6 @@ erDiagram
 
 ## Curso 
 - int id PK
-- int id FK
 - string nome
 - string codigo
 - int duracao_semestres
