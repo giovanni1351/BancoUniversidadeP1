@@ -70,7 +70,6 @@ erDiagram
     
     Departamento {
         int id PK
-        int id FK
         string nome
         string codigo
         string localizacao
@@ -172,7 +171,6 @@ erDiagram
 
 ## Departamento 
 - int id PK
-- int id FK
 - string nome
 - string codigo
 - string localizacao
