@@ -52,7 +52,6 @@ erDiagram
         string sexo
         date data_nascimento
         date data_contratacao
-        bool flag_ativo
     }
     
     Disciplinas {
@@ -71,7 +70,6 @@ erDiagram
         string nome
         string codigo
         int duracao_semestres
-        int id_departamento FK
     }
     
     Departamento {
@@ -174,8 +172,6 @@ erDiagram
 - string nome
 - string codigo
 - int duracao_semestres
-- int id_departamento FK
-
 
 ## Departamento 
 - int id PK
