@@ -51,7 +51,6 @@ create table public.DisciplinasAlunos(
 
 create table public.Historico_Escolar(
 	   id serial not null primary key 
-	  ,id_aluno int not null
 	  ,id_disciplina int not null
 	  ,nota float not null
 	  ,status varchar(255) not null
