@@ -46,7 +46,6 @@ erDiagram
     
     Professores {
         int id PK
-        int id FK
         string nome 
         string registro
         string sexo
@@ -148,7 +147,6 @@ erDiagram
 
 ## Professores 
 - int id PK
-- int id FK
 - string nome 
 - string registro
 - string sexo
