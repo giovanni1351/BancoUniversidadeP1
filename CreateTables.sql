@@ -50,13 +50,13 @@ create table public.DisciplinasAlunos(
 )
 
 create table public.Historico_Escolar(
-   id serial not null primary key 
-  ,id_aluno int not null
-  ,id_disciplina int not null
-  ,nota float not null
-  ,status varchar(255) not null
-  ,data_conclusao date not null
-  ,semestre int not null 
+	   id serial not null primary key 
+	  ,id_aluno int not null
+	  ,id_disciplina int not null
+	  ,nota float not null
+	  ,status varchar(255) not null
+	  ,data_conclusao date not null
+	  ,semestre int not null 
 )
 
 create table public.Matriz_Curricular(
@@ -67,10 +67,10 @@ create table public.Matriz_Curricular(
 )
 
 create table public.Curso(
-   id serial not null primary key 
-  ,nome varchar(255) not null
-  ,codigo varchar(255) not null
-  ,duracao_semestre int not null
+	   id serial not null primary key 
+	  ,nome varchar(255) not null
+	  ,codigo varchar(255) not null
+	  ,duracao_semestre int not null
 )
 	
 create table public.Professor_Departamento(
@@ -78,9 +78,18 @@ create table public.Professor_Departamento(
 	id_departamento int not null,
 	primary key(id_professor,id_departamento)
 )
+
 create table public.Departamento(
 	id SERIAL not null primary key,
 	nome varchar(255) not null,
 	codigo varchar(10) not null,
 	localizacao varchar(255) not null
+)
+
+create table public.Tcc(
+	   id serial not null primary key 
+	  ,id_professor int not null
+	  ,titulo varchar(255) not null
+	  ,nota float not null
+	  ,tema varchar(255) not null
 )
