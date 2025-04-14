@@ -56,6 +56,7 @@ erDiagram
         int id PK
         string codigo
         string nome
+        string cod_disciplina
         int carga_horaria
         string ementa
         int id_departamento FK
@@ -160,6 +161,7 @@ erDiagram
 ## Disciplinas 
 - int id PK
 - string codigo
+- string cod_disciplina
 - string nome
 - int carga_horaria
 - string ementa

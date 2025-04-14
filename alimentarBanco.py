@@ -1,5 +1,5 @@
 # jdbc:postgresql://aws-0-sa-east-1.pooler.supabase.com:5432/postgres?user=postgres.bwvqneansuqchkccmhxq&password=Feisenha123##
-
+from datetime import datetime, date
 import random
 import re
 from sqlalchemy import create_engine, text, inspect
@@ -8,7 +8,68 @@ from faker import Faker
 import json
 
 import sqlalchemy
-
+config_dados = [
+    {
+        'function':'generate_data_professores',
+        'table':'professores',
+        'n': 100,
+    },
+    {
+        'function':'generate_data_departamentos',
+        'table':'departamento',
+        'n': 10,
+    },
+    {
+        'function':'generate_data_disciplinas',
+        'table':'disciplinas',
+        'n': 100,
+    },
+    {
+        'function':'generate_data_curso',
+        'table':'curso',
+        'n': 100,
+    },
+    {
+        'function':'generate_data_tcc',
+        'table':'tcc',
+        'n': 100,
+    },
+    {
+        'function':'generate_data_alunos',
+        'table':'alunos',
+        'n': 100,
+    },
+    {
+        'function':'generate_data_matriz_curricular',
+        'table':'matriz_curricular',
+        'n': 100,
+    },
+    {
+        'function':'generate_data_professores_disciplinas',
+        'table':'professores_disciplinas',
+        'n': 100,
+    },
+    {
+        'function':'generate_data_disciplinas_alunos',
+        'table':'disciplinasalunos',
+        'n': 100,
+    },
+    {
+        'function':'generate_data_historico_escolar',
+        'table':'historico_escolar',
+        'n': 2600,
+    },
+    {
+        'function':'generate_data_aluno_historico_escolar',
+        'table':'aluno_historico_escolar',
+        'n': 100,
+    },
+    {
+        'function':'generate_data_professor_departamento',
+        'table':'professor_departamento',
+        'n': 3, # Maximo de 3 departamentos por professor
+    },   
+]
 def criar_conexao()->sqlalchemy.engine.Engine:
 
     # Fetch variables
@@ -79,7 +140,7 @@ with open('Schema.md', 'w', encoding='utf-8') as arquivo:
 faker = Faker('pt_BR') 
 
 conexao = criar_conexao()
-def generate_data_professores():
+def generate_data_professores(n):
     """ Tabela: professores
         🧱 Coluna: id - Tipo: INTEGER
         🧱 Coluna: nome - Tipo: VARCHAR(100)
@@ -91,7 +152,7 @@ def generate_data_professores():
         🔑 Chave Primária: ['id']
     """
     lista_professores = []
-    for i in range(10):
+    for i in range(n):
         professor = {
             'nome': faker.name(),
             'registro': faker.random_int(min=1000000000, max=9999999999),
@@ -104,7 +165,7 @@ def generate_data_professores():
 
     return lista_professores
 
-def generate_data_departamentos():
+def generate_data_departamentos(n):
     """
         📄 Tabela: departamento
         🧱 Coluna: id - Tipo: INTEGER
@@ -162,7 +223,7 @@ def generate_data_departamentos():
         'Engenharia de Biofármacos'
     ]
     lista_departamentos = []
-    for i in range(10):
+    for i in range(n):
         departamento = {
             'nome': random.choice(departamentos),
             'codigo': faker.random_int(min=1000000000, max=9999999999),
@@ -172,7 +233,7 @@ def generate_data_departamentos():
 
     return lista_departamentos
 
-def generate_data_disciplinas():
+def generate_data_disciplinas(n):
     """   
         📄 Tabela: disciplinas
         🧱 Coluna: id - Tipo: INTEGER
@@ -180,6 +241,7 @@ def generate_data_disciplinas():
         🧱 Coluna: carga_horaria - Tipo: INTEGER
         🧱 Coluna: resumo_disciplina - Tipo: VARCHAR(255)
         🧱 Coluna: id_departamento - Tipo: INTEGER
+        🧱 Coluna: cod_disciplina - Tipo: VARCHAR(5)
         🔑 Chave Primária: ['id']
         🔗 FK: ['id_departamento'] → departamento.['id']
      """
@@ -222,18 +284,20 @@ def generate_data_disciplinas():
         departamentos = pd.read_sql_query("SELECT id FROM departamento", conexao)
         return departamentos['id'].tolist()
     ids_departamentos = get_ids_departamentos()
-    for i in range(10):
+    letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    for i in range(n):
         disciplina = {
             'nome': random.choice(disciplinas),
             'carga_horaria': faker.random_int(min=10, max=200),
             'resumo_disciplina': faker.text(),
             'id_departamento': random.choice(ids_departamentos),
+            'cod_disciplina': random.choice(letras)+random.choice(letras)+str(faker.random_int(min=100, max=999)),
         }
         lista_disciplinas.append(disciplina)
 
     return lista_disciplinas
 
-def generate_data_curso():
+def generate_data_curso(n):
     """
         📄 Tabela: curso
         🧱 Coluna: id - Tipo: INTEGER
@@ -276,7 +340,7 @@ def generate_data_curso():
 
     return lista_curso
 
-def generate_data_tcc():
+def generate_data_tcc(n):
     """
     📄 Tabela: tcc
     🧱 Coluna: id - Tipo: INTEGER
@@ -292,7 +356,7 @@ def generate_data_tcc():
         professores = pd.read_sql_query("SELECT id FROM professores", conexao)
         return professores['id'].tolist()
     ids_professores = get_ids_professores()
-    for i in range(10):
+    for i in range(n):
         tcc = {
             'id_professor': random.choice(ids_professores),
             'titulo': faker.sentence(),
@@ -303,7 +367,7 @@ def generate_data_tcc():
 
     return lista_tcc
 
-def generate_data_alunos():
+def generate_data_alunos(n):
     """
         📄 Tabela: alunos
         🧱 Coluna: id - Tipo: INTEGER
@@ -330,7 +394,7 @@ def generate_data_alunos():
     ids_tcc = get_ids_tcc()
     sexos = ['M', 'F']
     
-    for i in range(10):
+    for i in range(n):
         aluno = {
             'nome': faker.name(),
             'registro': faker.random_int(min=1000000000, max=9999999999),
@@ -345,7 +409,7 @@ def generate_data_alunos():
 
     return lista_alunos
 
-def generate_data_matriz_curricular():
+def generate_data_matriz_curricular(n):
     """
     📄 Tabela: matriz_curricular
     🧱 Coluna: id_curso - Tipo: INTEGER
@@ -364,7 +428,7 @@ def generate_data_matriz_curricular():
         disciplinas = pd.read_sql_query("SELECT id FROM disciplinas", conexao)
         return disciplinas['id'].tolist()
     ids_disciplinas = get_ids_disciplinas()
-    for i in range(10):
+    for i in range(n):
         matriz_curricular = {
             'id_curso': random.choice(ids_cursos),
             'id_disciplina': random.choice(ids_disciplinas),
@@ -373,7 +437,7 @@ def generate_data_matriz_curricular():
         lista_matriz_curricular.append(matriz_curricular)
 
     return lista_matriz_curricular
-def generate_data_professores_disciplinas():
+def generate_data_professores_disciplinas(n):
     """
     📄 Tabela: professores_disciplinas
     🧱 Coluna: id_disciplina - Tipo: INTEGER
@@ -394,7 +458,7 @@ def generate_data_professores_disciplinas():
         professores = pd.read_sql_query("SELECT id FROM professores", conexao)
         return professores['id'].tolist()
     ids_professores = get_ids_professores()
-    for i in range(10):
+    for i in range(n):
         professores_disciplinas = {
             'id_disciplina': random.choice(ids_disciplinas),
             'id_professor': random.choice(ids_professores),
@@ -406,7 +470,7 @@ def generate_data_professores_disciplinas():
 
     return lista_professores_disciplinas
 
-def generate_data_disciplinas_alunos():
+def generate_data_disciplinas_alunos(n):
     """
     📄 Tabela: disciplinasalunos
     🧱 Coluna: id_disciplina - Tipo: INTEGER
@@ -427,7 +491,7 @@ def generate_data_disciplinas_alunos():
         alunos = pd.read_sql_query("SELECT id FROM alunos", conexao)
         return alunos['id'].tolist()
     ids_alunos = get_ids_alunos()
-    for i in range(10):
+    for i in range(n):
         disciplinas_alunos = {
             'id_disciplina': random.choice(ids_disciplinas),
             'id_aluno': random.choice(ids_alunos),
@@ -438,7 +502,7 @@ def generate_data_disciplinas_alunos():
         lista_disciplinas_alunos.append(disciplinas_alunos)
     return lista_disciplinas_alunos
 
-def generate_data_historico_escolar():
+def generate_data_historico_escolar(n):
     """
     📄 Tabela: historico_escolar
     🧱 Coluna: id - Tipo: INTEGER
@@ -455,24 +519,25 @@ def generate_data_historico_escolar():
         disciplinas = pd.read_sql_query("SELECT id FROM disciplinas", conexao)
         return disciplinas['id'].tolist()
     ids_disciplinas = get_ids_disciplinas()
-    for i in range(10):
+    for i in range(n):
         nota = faker.random_int(min=0, max=10)
-        if nota >= 5:
-            status = 'Aprovado'
+        data_conclusao = faker.date_between(start_date='-2500d', end_date='+1200d')
+        if data_conclusao> date.today():
+            status = 'Cursando'
         else:
-            status = 'Reprovado'
+            status = random.choice(['Concluido', 'Transferido', 'Trancado'])
         historico_escolar = {
             'id_disciplina': random.choice(ids_disciplinas),
             'nota': nota,
             'status': status,
-            'data_conclusao': faker.date_between(start_date='-30d', end_date='today'),
+            'data_conclusao': data_conclusao,   
             'semestre': faker.random_int(min=1, max=8),
         }
         lista_historico_escolar.append(historico_escolar)
 
     return lista_historico_escolar
 
-def generate_data_aluno_historico_escolar():
+def generate_data_aluno_historico_escolar(n):
     """
     📄 Tabela: aluno_historico_escolar
     🧱 Coluna: id_aluno - Tipo: INTEGER
@@ -490,7 +555,7 @@ def generate_data_aluno_historico_escolar():
         historico_escolar = pd.read_sql_query("SELECT id FROM historico_escolar", conexao)
         return historico_escolar['id'].tolist()
     ids_historico_escolar = get_ids_historico_escolar()
-    for i in range(10):
+    for i in range(n):
         aluno_historico_escolar = {
             'id_aluno': random.choice(ids_alunos),
             'id_historico_escolar': random.choice(ids_historico_escolar),
@@ -499,7 +564,7 @@ def generate_data_aluno_historico_escolar():
 
     return lista_aluno_historico_escolar
 
-def generate_data_professor_departamento():
+def generate_data_professor_departamento(n):
     """
     📄 Tabela: professor_departamento
     🧱 Coluna: id_professor - Tipo: INTEGER
@@ -518,74 +583,37 @@ def generate_data_professor_departamento():
         departamentos = pd.read_sql_query("SELECT id FROM departamento", conexao)
         return departamentos['id'].tolist()
     ids_departamentos = get_ids_departamentos()
-    for i in range(10):
-        professor_departamento = {
-            'id_professor': random.choice(ids_professores),
-            'id_departamento': random.choice(ids_departamentos),
-            'is_chefe': faker.boolean()
-        }
-        lista_professor_departamento.append(professor_departamento)
+    
+    for id_professor in ids_professores:
+        valor_max = faker.random_int(min=1, max=n)
+        for i in range(valor_max):
+            professor_departamento = {
+                'id_professor': id_professor,
+                'id_departamento': random.choice(ids_departamentos),
+                'is_chefe': faker.boolean()
+            }
+            lista_professor_departamento.append(professor_departamento)
 
     return lista_professor_departamento
 
 if truncar_todo_banco(engine):
     print("Tabelas truncadas com sucesso")
 
-professores = generate_data_professores()
-professores_df = pd.DataFrame(professores)
-professores_df.to_sql('professores', conexao, if_exists='append', index=False, schema='public')
-
-departamentos = generate_data_departamentos()
-departamentos_df = pd.DataFrame(departamentos)
-departamentos_df.to_sql('departamento', conexao, if_exists='append', index=False, schema='public')
-
-disciplinas = generate_data_disciplinas()
-disciplinas_df = pd.DataFrame(disciplinas)
-disciplinas_df.to_sql('disciplinas', conexao, if_exists='append', index=False, schema='public')
-
-curso = generate_data_curso()
-curso_df = pd.DataFrame(curso)
-curso_df.to_sql('curso', conexao, if_exists='append', index=False, schema='public')
-
-tcc = generate_data_tcc()
-tcc_df = pd.DataFrame(tcc)
-tcc_df.to_sql('tcc', conexao, if_exists='append', index=False, schema='public')
-
-alunos = generate_data_alunos()
-alunos_df = pd.DataFrame(alunos)
-alunos_df.to_sql('alunos', conexao, if_exists='append', index=False, schema='public')
-
-matriz_curricular = generate_data_matriz_curricular()
-matriz_curricular_df = pd.DataFrame(matriz_curricular)
-matriz_curricular_df = matriz_curricular_df.drop_duplicates()
-matriz_curricular_df.to_sql('matriz_curricular', conexao, if_exists='append', index=False, schema='public')
-
-professores_disciplinas = generate_data_professores_disciplinas()
-professores_disciplinas_df = pd.DataFrame(professores_disciplinas)
-professores_disciplinas_df = professores_disciplinas_df.drop_duplicates()
-professores_disciplinas_df.to_sql('professores_disciplinas', conexao, if_exists='append', index=False, schema='public')
-
-disciplinas_alunos = generate_data_disciplinas_alunos()
-disciplinas_alunos_df = pd.DataFrame(disciplinas_alunos)
-disciplinas_alunos_df = disciplinas_alunos_df.drop_duplicates()
-disciplinas_alunos_df.to_sql('disciplinasalunos', conexao, if_exists='append', index=False, schema='public')
-
-historico_escolar = generate_data_historico_escolar()
-historico_escolar_df = pd.DataFrame(historico_escolar)
-historico_escolar_df.to_sql('historico_escolar', conexao, if_exists='append', index=False, schema='public')
-
-aluno_historico_escolar = generate_data_aluno_historico_escolar()
-aluno_historico_escolar_df = pd.DataFrame(aluno_historico_escolar)
-aluno_historico_escolar_df = aluno_historico_escolar_df.drop_duplicates()
-aluno_historico_escolar_df.to_sql('aluno_historico_escolar', conexao, if_exists='append', index=False, schema='public')
-
-professor_departamento = generate_data_professor_departamento()
-professor_departamento_df = pd.DataFrame(professor_departamento)
-professor_departamento_df = professor_departamento_df.drop_duplicates()
-professor_departamento_df.to_sql('professor_departamento', conexao, if_exists='append', index=False, schema='public')
-
-
-
+for config in config_dados:
+    print(f"Iniciando a geração dos dados para a tabela: {config['table']}")
+    func = globals()[config['function']]
+    data = func(config['n'])
+    df = pd.DataFrame(data)
+    if config['table'] == 'professor_departamento':
+        df = df.drop_duplicates(subset=['id_professor', 'id_departamento'])
+    else:   
+        df = df.drop_duplicates()
+    try:
+        df.to_sql(config['table'], conexao, if_exists='append', index=False, schema='public')
+    except Exception as e:
+        print(f"Erro ao gerar dados para a tabela: {config['table']}")
+        print(f"Erro: {e}")
+        print(f"Dados: {df}")
 
 
 

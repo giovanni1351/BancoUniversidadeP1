@@ -24,25 +24,6 @@
   🔗 FK: ['id_aluno'] → alunos.['id']
   🔗 FK: ['id_disciplina'] → disciplinas.['id']
 
-📄 Tabela: disciplinas
-  🧱 Coluna: id - Tipo: INTEGER
-  🧱 Coluna: nome - Tipo: VARCHAR(100)
-  🧱 Coluna: carga_horaria - Tipo: INTEGER
-  🧱 Coluna: resumo_disciplina - Tipo: VARCHAR(255)
-  🧱 Coluna: id_departamento - Tipo: INTEGER
-  🔑 Chave Primária: ['id']
-  🔗 FK: ['id_departamento'] → departamento.['id']
-
-📄 Tabela: historico_escolar
-  🧱 Coluna: id - Tipo: INTEGER
-  🧱 Coluna: id_disciplina - Tipo: INTEGER
-  🧱 Coluna: nota - Tipo: DOUBLE PRECISION
-  🧱 Coluna: status - Tipo: VARCHAR(255)
-  🧱 Coluna: data_conclusao - Tipo: DATE
-  🧱 Coluna: semestre - Tipo: INTEGER
-  🔑 Chave Primária: ['id']
-  🔗 FK: ['id_disciplina'] → disciplinas.['id']
-
 📄 Tabela: professores
   🧱 Coluna: id - Tipo: INTEGER
   🧱 Coluna: nome - Tipo: VARCHAR(100)
@@ -61,6 +42,26 @@
   🧱 Coluna: id_professor_cordenador - Tipo: INTEGER
   🔑 Chave Primária: ['id']
   🔗 FK: ['id_professor_cordenador'] → professores.['id']
+
+📄 Tabela: disciplinas
+  🧱 Coluna: id - Tipo: INTEGER
+  🧱 Coluna: nome - Tipo: VARCHAR(100)
+  🧱 Coluna: carga_horaria - Tipo: INTEGER
+  🧱 Coluna: resumo_disciplina - Tipo: VARCHAR(255)
+  🧱 Coluna: id_departamento - Tipo: INTEGER
+  🧱 Coluna: cod_disciplina - Tipo: VARCHAR(5)
+  🔑 Chave Primária: ['id']
+  🔗 FK: ['id_departamento'] → departamento.['id']
+
+📄 Tabela: historico_escolar
+  🧱 Coluna: id - Tipo: INTEGER
+  🧱 Coluna: id_disciplina - Tipo: INTEGER
+  🧱 Coluna: nota - Tipo: DOUBLE PRECISION
+  🧱 Coluna: status - Tipo: VARCHAR(255)
+  🧱 Coluna: data_conclusao - Tipo: DATE
+  🧱 Coluna: semestre - Tipo: INTEGER
+  🔑 Chave Primária: ['id']
+  🔗 FK: ['id_disciplina'] → disciplinas.['id']
 
 📄 Tabela: alunos
   🧱 Coluna: id - Tipo: INTEGER
@@ -91,6 +92,15 @@
   🔗 FK: ['id_departamento'] → departamento.['id']
   🔗 FK: ['id_professor'] → professores.['id']
 
+📄 Tabela: tcc
+  🧱 Coluna: id - Tipo: INTEGER
+  🧱 Coluna: id_professor - Tipo: INTEGER
+  🧱 Coluna: titulo - Tipo: VARCHAR(255)
+  🧱 Coluna: nota - Tipo: DOUBLE PRECISION
+  🧱 Coluna: tema - Tipo: VARCHAR(255)
+  🔑 Chave Primária: ['id']
+  🔗 FK: ['id_professor'] → professores.['id']
+
 📄 Tabela: professores_disciplinas
   🧱 Coluna: id_disciplina - Tipo: INTEGER
   🧱 Coluna: id_professor - Tipo: INTEGER
@@ -99,13 +109,4 @@
   🧱 Coluna: periodo - Tipo: VARCHAR(255)
   🔑 Chave Primária: ['id_disciplina', 'id_professor', 'semestre', 'ano', 'periodo']
   🔗 FK: ['id_disciplina'] → disciplinas.['id']
-  🔗 FK: ['id_professor'] → professores.['id']
-
-📄 Tabela: tcc
-  🧱 Coluna: id - Tipo: INTEGER
-  🧱 Coluna: id_professor - Tipo: INTEGER
-  🧱 Coluna: titulo - Tipo: VARCHAR(255)
-  🧱 Coluna: nota - Tipo: DOUBLE PRECISION
-  🧱 Coluna: tema - Tipo: VARCHAR(255)
-  🔑 Chave Primária: ['id']
   🔗 FK: ['id_professor'] → professores.['id']
