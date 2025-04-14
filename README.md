@@ -33,7 +33,6 @@ erDiagram
 
     Alunos {
         int id PK
-        int id FK
         string nome
         string registro
         string sexo
@@ -46,7 +45,6 @@ erDiagram
     
     Professores {
         int id PK
-        int id FK
         string nome 
         string registro
         string sexo
@@ -56,7 +54,6 @@ erDiagram
     
     Disciplinas {
         int id PK
-        int id FK
         string codigo
         string nome
         int carga_horaria
@@ -66,16 +63,13 @@ erDiagram
     
     Curso {
         int id PK
-        int id FK
         string nome
         string codigo
         int duracao_semestres
-        int id_departamento FK
     }
     
     Departamento {
         int id PK
-        int id FK
         string nome
         string codigo
         string localizacao
@@ -92,7 +86,6 @@ erDiagram
     
     Historico_Escolar {
         int id PK
-        int id_aluno FK
         int id_disciplina FK
         float nota
         string status
@@ -101,12 +94,16 @@ erDiagram
     }   
     Prof_Depart {
         int id_professor PK
+        int id_professor FK
         int id_departamento PK
+        int id_departamento FK
 
     }
     Professores_Disciplinas {
         int id_disciplina PK
+        int id_disciplina FK
         int id_professor PK
+        int id_professor FK
         int semestre PK
         int ano PK
         string periodo PK
@@ -119,7 +116,9 @@ erDiagram
     }
     Aluno_Historico_Escolar{
         int id_Aluno PK
+        int id_Aluno FK
         int id_Historico_Escolar PK
+        int id_Historico_Escolar FK
 
 
     }
@@ -133,10 +132,11 @@ erDiagram
 
     }
 ```
+![image](https://github.com/user-attachments/assets/9068ae73-7ac2-419d-9841-82726bca45ea)
+
 --- 
 ## Alunos 
 - int id PK
-- int id FK
 - string nome
 - string registro
 - string sexo
@@ -149,7 +149,6 @@ erDiagram
 
 ## Professores 
 - int id PK
-- int id FK
 - string nome 
 - string registro
 - string sexo
@@ -159,7 +158,6 @@ erDiagram
 
 ## Disciplinas 
 - int id PK
-- int id FK
 - string codigo
 - string nome
 - int carga_horaria
@@ -169,16 +167,12 @@ erDiagram
 
 ## Curso 
 - int id PK
-- int id FK
 - string nome
 - string codigo
 - int duracao_semestres
-- int id_departamento FK
-
 
 ## Departamento 
 - int id PK
-- int id FK
 - string nome
 - string codigo
 - string localizacao
@@ -195,7 +189,6 @@ erDiagram
 
 ## Historico_Escolar 
 - int id PK
-- int id_aluno FK
 - int id_disciplina FK
 - float nota
 - string status
@@ -204,7 +197,9 @@ erDiagram
 
 ## Prof_Depart 
 - int id_professor PK
+- int id_professor FK
 - int id_departamento PK
+- int id_departamento FK
 
 
 ## Professores_Disciplinas 
@@ -222,7 +217,9 @@ erDiagram
 
 ## Aluno_Historico_Escolar
 - int id_Aluno PK
+- int id_Aluno FK
 - int id_Historico_Escolar PK
+- int id_Historico_Escolar FK
 
 
 ## DisciplinasAlunos 
