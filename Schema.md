@@ -1,3 +1,4 @@
+
 📄 Tabela: departamento
   🧱 Coluna: id - Tipo: INTEGER
   🧱 Coluna: nome - Tipo: VARCHAR(255)
@@ -5,12 +6,13 @@
   🧱 Coluna: localizacao - Tipo: VARCHAR(255)
   🔑 Chave Primária: ['id']
 
-📄 Tabela: professor_departamento
-  🧱 Coluna: id_professor - Tipo: INTEGER
-  🧱 Coluna: id_departamento - Tipo: INTEGER
-  🔑 Chave Primária: ['id_professor', 'id_departamento']
-  🔗 FK: ['id_departamento'] → departamento.['id']
-  🔗 FK: ['id_professor'] → professores.['id']
+📄 Tabela: matriz_curricular
+  🧱 Coluna: id_curso - Tipo: INTEGER
+  🧱 Coluna: id_disciplina - Tipo: INTEGER
+  🧱 Coluna: semestre - Tipo: INTEGER
+  🔑 Chave Primária: ['id_curso', 'id_disciplina', 'semestre']
+  🔗 FK: ['id_curso'] → curso.['id']
+  🔗 FK: ['id_disciplina'] → disciplinas.['id']
 
 📄 Tabela: disciplinasalunos
   🧱 Coluna: id_disciplina - Tipo: INTEGER
@@ -22,24 +24,6 @@
   🔗 FK: ['id_aluno'] → alunos.['id']
   🔗 FK: ['id_disciplina'] → disciplinas.['id']
 
-📄 Tabela: matriz_curricular
-  🧱 Coluna: id_curso - Tipo: INTEGER
-  🧱 Coluna: id_disciplina - Tipo: INTEGER
-  🧱 Coluna: semestre - Tipo: INTEGER
-  🔑 Chave Primária: ['id_curso', 'id_disciplina', 'semestre']
-  🔗 FK: ['id_curso'] → curso.['id']
-  🔗 FK: ['id_disciplina'] → disciplinas.['id']
-
-📄 Tabela: professores_disciplinas
-  🧱 Coluna: id_disciplina - Tipo: INTEGER
-  🧱 Coluna: id_professor - Tipo: INTEGER
-  🧱 Coluna: semestre - Tipo: INTEGER
-  🧱 Coluna: ano - Tipo: INTEGER
-  🧱 Coluna: periodo - Tipo: VARCHAR(255)
-  🔑 Chave Primária: ['id_disciplina', 'id_professor', 'semestre', 'ano', 'periodo']
-  🔗 FK: ['id_disciplina'] → disciplinas.['id']
-  🔗 FK: ['id_professor'] → professores.['id']
-
 📄 Tabela: disciplinas
   🧱 Coluna: id - Tipo: INTEGER
   🧱 Coluna: nome - Tipo: VARCHAR(100)
@@ -48,27 +32,6 @@
   🧱 Coluna: id_departamento - Tipo: INTEGER
   🔑 Chave Primária: ['id']
   🔗 FK: ['id_departamento'] → departamento.['id']
-
-📄 Tabela: alunos
-  🧱 Coluna: id - Tipo: INTEGER
-  🧱 Coluna: nome - Tipo: VARCHAR(100)
-  🧱 Coluna: registro - Tipo: VARCHAR(10)
-  🧱 Coluna: sexo - Tipo: VARCHAR(1)
-  🧱 Coluna: data_nascimento - Tipo: DATE
-  🧱 Coluna: data_inicio - Tipo: DATE
-  🧱 Coluna: data_fim - Tipo: DATE
-  🧱 Coluna: id_curso - Tipo: INTEGER
-  🧱 Coluna: id_tcc - Tipo: INTEGER
-  🔑 Chave Primária: ['id']
-  🔗 FK: ['id_curso'] → curso.['id']
-  🔗 FK: ['id_tcc'] → tcc.['id']
-
-📄 Tabela: curso
-  🧱 Coluna: id - Tipo: INTEGER
-  🧱 Coluna: nome - Tipo: VARCHAR(255)
-  🧱 Coluna: codigo - Tipo: VARCHAR(255)
-  🧱 Coluna: duracao_semestre - Tipo: INTEGER
-  🔑 Chave Primária: ['id']
 
 📄 Tabela: historico_escolar
   🧱 Coluna: id - Tipo: INTEGER
@@ -90,6 +53,54 @@
   🧱 Coluna: flag_ativo - Tipo: BOOLEAN
   🔑 Chave Primária: ['id']
 
+📄 Tabela: curso
+  🧱 Coluna: id - Tipo: INTEGER
+  🧱 Coluna: nome - Tipo: VARCHAR(255)
+  🧱 Coluna: codigo - Tipo: VARCHAR(255)
+  🧱 Coluna: duracao_semestre - Tipo: INTEGER
+  🧱 Coluna: id_professor_cordenador - Tipo: INTEGER
+  🔑 Chave Primária: ['id']
+  🔗 FK: ['id_professor_cordenador'] → professores.['id']
+
+📄 Tabela: alunos
+  🧱 Coluna: id - Tipo: INTEGER
+  🧱 Coluna: nome - Tipo: VARCHAR(100)
+  🧱 Coluna: registro - Tipo: VARCHAR(10)
+  🧱 Coluna: sexo - Tipo: VARCHAR(1)
+  🧱 Coluna: data_nascimento - Tipo: DATE
+  🧱 Coluna: data_inicio - Tipo: DATE
+  🧱 Coluna: data_fim - Tipo: DATE
+  🧱 Coluna: id_curso - Tipo: INTEGER
+  🧱 Coluna: id_tcc - Tipo: INTEGER
+  🔑 Chave Primária: ['id']
+  🔗 FK: ['id_curso'] → curso.['id']
+  🔗 FK: ['id_tcc'] → tcc.['id']
+
+📄 Tabela: aluno_historico_escolar
+  🧱 Coluna: id_aluno - Tipo: INTEGER
+  🧱 Coluna: id_historico_escolar - Tipo: INTEGER
+  🔑 Chave Primária: ['id_aluno', 'id_historico_escolar']
+  🔗 FK: ['id_aluno'] → alunos.['id']
+  🔗 FK: ['id_historico_escolar'] → historico_escolar.['id']
+
+📄 Tabela: professor_departamento
+  🧱 Coluna: id_professor - Tipo: INTEGER
+  🧱 Coluna: id_departamento - Tipo: INTEGER
+  🧱 Coluna: is_chefe - Tipo: BOOLEAN
+  🔑 Chave Primária: ['id_professor', 'id_departamento']
+  🔗 FK: ['id_departamento'] → departamento.['id']
+  🔗 FK: ['id_professor'] → professores.['id']
+
+📄 Tabela: professores_disciplinas
+  🧱 Coluna: id_disciplina - Tipo: INTEGER
+  🧱 Coluna: id_professor - Tipo: INTEGER
+  🧱 Coluna: semestre - Tipo: INTEGER
+  🧱 Coluna: ano - Tipo: INTEGER
+  🧱 Coluna: periodo - Tipo: VARCHAR(255)
+  🔑 Chave Primária: ['id_disciplina', 'id_professor', 'semestre', 'ano', 'periodo']
+  🔗 FK: ['id_disciplina'] → disciplinas.['id']
+  🔗 FK: ['id_professor'] → professores.['id']
+
 📄 Tabela: tcc
   🧱 Coluna: id - Tipo: INTEGER
   🧱 Coluna: id_professor - Tipo: INTEGER
@@ -98,10 +109,3 @@
   🧱 Coluna: tema - Tipo: VARCHAR(255)
   🔑 Chave Primária: ['id']
   🔗 FK: ['id_professor'] → professores.['id']
-
-📄 Tabela: aluno_historico_escolar
-  🧱 Coluna: id_aluno - Tipo: INTEGER
-  🧱 Coluna: id_historico_escolar - Tipo: INTEGER
-  🔑 Chave Primária: ['id_aluno', 'id_historico_escolar']
-  🔗 FK: ['id_aluno'] → alunos.['id']
-  🔗 FK: ['id_historico_escolar'] → historico_escolar.['id']

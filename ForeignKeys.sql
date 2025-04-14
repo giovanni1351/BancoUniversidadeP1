@@ -56,3 +56,16 @@ alter table public.tcc
 
 ;alter table public.disciplinas 
 	add constraint fk_disc_depart foreign key (id_departamento) references departamento(id)
+
+
+;alter table public.curso 
+	add constraint fk_prof_cord foreign key (id_professor_cordenador) references  professores(id)
+
+
+
+
+
+
+
+
+

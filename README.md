@@ -66,6 +66,7 @@ erDiagram
         string nome
         string codigo
         int duracao_semestres
+        int id_professor_cordenador fk
     }
     
     Departamento {
@@ -170,7 +171,7 @@ erDiagram
 - string nome
 - string codigo
 - int duracao_semestres
-
+- int id_professor_cordenador FK
 ## Departamento 
 - int id PK
 - string nome

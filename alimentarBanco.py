@@ -7,7 +7,9 @@ import pandas as pd
 from faker import Faker
 import json
 
-def criar_conexao():
+import sqlalchemy
+
+def criar_conexao()->sqlalchemy.engine.Engine:
 
     # Fetch variables
     USER = 'postgres.bwvqneansuqchkccmhxq'
@@ -27,6 +29,7 @@ def pegar_schema(engine):
     """
     Pega o schema do banco de dados utilizando o SQLAlchemy inspector
     """
+    schema = ""
         # Instanciando o inspetor
     inspector = inspect(engine)
 
@@ -34,25 +37,45 @@ def pegar_schema(engine):
     tabelas = inspector.get_table_names(schema='public')
 
     for tabela in tabelas:
-        print(f"\n📄 Tabela: {tabela}")
+        schema+= f"\n📄 Tabela: {tabela}\n"
+        # print(f"\n📄 Tabela: {tabela}")
         
         # Colunas
         colunas = inspector.get_columns(tabela, schema='public')
         for col in colunas:
-            print(f"  🧱 Coluna: {col['name']} - Tipo: {col['type']}")
+            schema+=f"  🧱 Coluna: {col['name']} - Tipo: {col['type']}\n"
+            # print(f"  🧱 Coluna: {col['name']} - Tipo: {col['type']}")
 
         # Chave primária
         pk = inspector.get_pk_constraint(tabela, schema='public')
-        print(f"  🔑 Chave Primária: {pk.get('constrained_columns', [])}")
+        schema +=f"  🔑 Chave Primária: {pk.get('constrained_columns', [])}\n"
+        # print(f"  🔑 Chave Primária: {pk.get('constrained_columns', [])}")
 
         # Chaves estrangeiras
         fks = inspector.get_foreign_keys(tabela, schema='public')
         for fk in fks:
-            print(f"  🔗 FK: {fk['constrained_columns']} → {fk['referred_table']}.{fk['referred_columns']}")
+            schema +=f"  🔗 FK: {fk['constrained_columns']} → {fk['referred_table']}.{fk['referred_columns']}\n"
+            # print(f"  🔗 FK: {fk['constrained_columns']} → {fk['referred_table']}.{fk['referred_columns']}")
 
-        
+    return schema
 
-# schema = pegar_schema(engine)
+def truncar_todo_banco(engine:sqlalchemy.engine.Engine):
+    """
+    Trunca todas as tabelas do banco de dados
+    """
+    inspector = inspect(engine)
+    tabelas = inspector.get_table_names(schema='public')
+    for tabela in tabelas:
+        with engine.connect() as conexao:
+            conexao.execute(text(f"TRUNCATE TABLE {tabela} RESTART IDENTITY CASCADE"))
+            conexao.commit()
+        print(f"Tabela {tabela} truncada com sucesso")
+    return True
+
+schema = pegar_schema(engine)
+print(schema)
+with open('Schema.md', 'w', encoding='utf-8') as arquivo:
+    arquivo.write(schema)
 faker = Faker('pt_BR') 
 
 conexao = criar_conexao()
@@ -194,7 +217,7 @@ def generate_data_disciplinas():
         'Engenharia de Biotecnologia',
         'Engenharia de Biofármacos'
     ]
-    lista_disciplinas = re
+    lista_disciplinas = []
     def get_ids_departamentos():
         departamentos = pd.read_sql_query("SELECT id FROM departamento", conexao)
         return departamentos['id'].tolist()
@@ -217,7 +240,9 @@ def generate_data_curso():
         🧱 Coluna: nome - Tipo: VARCHAR(255)
         🧱 Coluna: codigo - Tipo: VARCHAR(255)
         🧱 Coluna: duracao_semestre - Tipo: INTEGER
+        🧱 Coluna: id_professor_cordenador - Tipo: INTEGER
         🔑 Chave Primária: ['id']
+        🔗 FK: ['id_professor_cordenador'] → professores.['id']
     """
     nomes_cursos = [
         'Engenharia de Software',
@@ -236,11 +261,16 @@ def generate_data_curso():
     ]
     lista_curso = []
     letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    def get_ids_professores():
+        professores = pd.read_sql_query("SELECT id FROM professores", conexao)
+        return professores['id'].tolist()
+    ids_professores = get_ids_professores()
     for nome_curso in nomes_cursos:
         curso = {
             'nome': nome_curso,
             'codigo': random.choice(letras)+random.choice(letras)+str(faker.random_int(min=1, max=100)),
             'duracao_semestre': faker.random_int(min=4, max=12),
+            'id_professor_cordenador': random.choice(ids_professores),
         }
         lista_curso.append(curso)
 
@@ -474,6 +504,7 @@ def generate_data_professor_departamento():
     📄 Tabela: professor_departamento
     🧱 Coluna: id_professor - Tipo: INTEGER
     🧱 Coluna: id_departamento - Tipo: INTEGER
+    🧱 Coluna: is_chefe - Tipo: BOOLEAN
     🔑 Chave Primária: ['id_professor', 'id_departamento']
     🔗 FK: ['id_departamento'] → departamento.['id']
     🔗 FK: ['id_professor'] → professores.['id']
@@ -491,58 +522,67 @@ def generate_data_professor_departamento():
         professor_departamento = {
             'id_professor': random.choice(ids_professores),
             'id_departamento': random.choice(ids_departamentos),
+            'is_chefe': faker.boolean()
         }
         lista_professor_departamento.append(professor_departamento)
 
     return lista_professor_departamento
 
-# professores = generate_data_professores()
-# professores_df = pd.DataFrame(professores)
-# professores_df.to_sql('professores', conexao, if_exists='append', index=False, schema='public')
+if truncar_todo_banco(engine):
+    print("Tabelas truncadas com sucesso")
 
-# departamentos = generate_data_departamentos()
-# departamentos_df = pd.DataFrame(departamentos)
-# departamentos_df.to_sql('departamento', conexao, if_exists='append', index=False, schema='public')
+professores = generate_data_professores()
+professores_df = pd.DataFrame(professores)
+professores_df.to_sql('professores', conexao, if_exists='append', index=False, schema='public')
 
-# disciplinas = generate_data_disciplinas()
-# disciplinas_df = pd.DataFrame(disciplinas)
-# disciplinas_df.to_sql('disciplinas', conexao, if_exists='append', index=False, schema='public')
+departamentos = generate_data_departamentos()
+departamentos_df = pd.DataFrame(departamentos)
+departamentos_df.to_sql('departamento', conexao, if_exists='append', index=False, schema='public')
 
-# curso = generate_data_curso()
-# curso_df = pd.DataFrame(curso)
-# curso_df.to_sql('curso', conexao, if_exists='append', index=False, schema='public')
+disciplinas = generate_data_disciplinas()
+disciplinas_df = pd.DataFrame(disciplinas)
+disciplinas_df.to_sql('disciplinas', conexao, if_exists='append', index=False, schema='public')
 
-# tcc = generate_data_tcc()
-# tcc_df = pd.DataFrame(tcc)
-# tcc_df.to_sql('tcc', conexao, if_exists='append', index=False, schema='public')
+curso = generate_data_curso()
+curso_df = pd.DataFrame(curso)
+curso_df.to_sql('curso', conexao, if_exists='append', index=False, schema='public')
 
-# alunos = generate_data_alunos()
-# alunos_df = pd.DataFrame(alunos)
-# alunos_df.to_sql('alunos', conexao, if_exists='append', index=False, schema='public')
+tcc = generate_data_tcc()
+tcc_df = pd.DataFrame(tcc)
+tcc_df.to_sql('tcc', conexao, if_exists='append', index=False, schema='public')
 
-# matriz_curricular = generate_data_matriz_curricular()
-# matriz_curricular_df = pd.DataFrame(matriz_curricular)
-# matriz_curricular_df.to_sql('matriz_curricular', conexao, if_exists='append', index=False, schema='public')
+alunos = generate_data_alunos()
+alunos_df = pd.DataFrame(alunos)
+alunos_df.to_sql('alunos', conexao, if_exists='append', index=False, schema='public')
 
-# professores_disciplinas = generate_data_professores_disciplinas()
-# professores_disciplinas_df = pd.DataFrame(professores_disciplinas)
-# professores_disciplinas_df.to_sql('professores_disciplinas', conexao, if_exists='append', index=False, schema='public')
+matriz_curricular = generate_data_matriz_curricular()
+matriz_curricular_df = pd.DataFrame(matriz_curricular)
+matriz_curricular_df = matriz_curricular_df.drop_duplicates()
+matriz_curricular_df.to_sql('matriz_curricular', conexao, if_exists='append', index=False, schema='public')
 
-# disciplinas_alunos = generate_data_disciplinas_alunos()
-# disciplinas_alunos_df = pd.DataFrame(disciplinas_alunos)
-# disciplinas_alunos_df.to_sql('disciplinasalunos', conexao, if_exists='append', index=False, schema='public')
+professores_disciplinas = generate_data_professores_disciplinas()
+professores_disciplinas_df = pd.DataFrame(professores_disciplinas)
+professores_disciplinas_df = professores_disciplinas_df.drop_duplicates()
+professores_disciplinas_df.to_sql('professores_disciplinas', conexao, if_exists='append', index=False, schema='public')
 
-# historico_escolar = generate_data_historico_escolar()
-# historico_escolar_df = pd.DataFrame(historico_escolar)
-# historico_escolar_df.to_sql('historico_escolar', conexao, if_exists='append', index=False, schema='public')
+disciplinas_alunos = generate_data_disciplinas_alunos()
+disciplinas_alunos_df = pd.DataFrame(disciplinas_alunos)
+disciplinas_alunos_df = disciplinas_alunos_df.drop_duplicates()
+disciplinas_alunos_df.to_sql('disciplinasalunos', conexao, if_exists='append', index=False, schema='public')
 
-# aluno_historico_escolar = generate_data_aluno_historico_escolar()
-# aluno_historico_escolar_df = pd.DataFrame(aluno_historico_escolar)
-# aluno_historico_escolar_df.to_sql('aluno_historico_escolar', conexao, if_exists='append', index=False, schema='public')
+historico_escolar = generate_data_historico_escolar()
+historico_escolar_df = pd.DataFrame(historico_escolar)
+historico_escolar_df.to_sql('historico_escolar', conexao, if_exists='append', index=False, schema='public')
 
-# professor_departamento = generate_data_professor_departamento()
-# professor_departamento_df = pd.DataFrame(professor_departamento)
-# professor_departamento_df.to_sql('professor_departamento', conexao, if_exists='append', index=False, schema='public')
+aluno_historico_escolar = generate_data_aluno_historico_escolar()
+aluno_historico_escolar_df = pd.DataFrame(aluno_historico_escolar)
+aluno_historico_escolar_df = aluno_historico_escolar_df.drop_duplicates()
+aluno_historico_escolar_df.to_sql('aluno_historico_escolar', conexao, if_exists='append', index=False, schema='public')
+
+professor_departamento = generate_data_professor_departamento()
+professor_departamento_df = pd.DataFrame(professor_departamento)
+professor_departamento_df = professor_departamento_df.drop_duplicates()
+professor_departamento_df.to_sql('professor_departamento', conexao, if_exists='append', index=False, schema='public')
 
 
 

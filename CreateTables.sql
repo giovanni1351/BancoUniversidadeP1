@@ -75,6 +75,7 @@ create table public.Alunos(
 ;create table public.Professor_Departamento(
 	id_professor int not null,
 	id_departamento int not null,
+	is_chefe boolean,
 	primary key(id_professor,id_departamento)
 )
 
