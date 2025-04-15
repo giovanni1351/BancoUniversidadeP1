@@ -39,6 +39,7 @@
 	nome VARCHAR(100) not null,
 	carga_horaria int not null,
 	resumo_disciplina VARCHAR(255),
+	cod_disciplina VARCHAR(10) not null,
 	id_departamento int
 )
 

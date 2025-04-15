@@ -1,6 +1,7 @@
 # jdbc:postgresql://aws-0-sa-east-1.pooler.supabase.com:5432/postgres?user=postgres.bwvqneansuqchkccmhxq&password=Feisenha123##
 from datetime import timedelta
 from datetime import datetime, date
+from math import floor
 import random
 import re
 from sqlalchemy import create_engine, text, inspect
@@ -43,7 +44,7 @@ config_dados = [
     {
         'function':'generate_data_matriz_curricular',
         'table':'matriz_curricular',
-        'n': 20, # disciplinas por curso no maximo e o minimo é n/2
+        'n': 40, # disciplinas por curso no maximo e o minimo é n/2
     },
     {
         'function':'generate_data_professores_disciplinas',
@@ -86,6 +87,22 @@ def criar_conexao()->sqlalchemy.engine.Engine:
     return engine
 
 engine = criar_conexao()
+
+def criar_banco():
+    """
+    Cria o banco de dados
+    """
+    with open("montaBanco.sql", "r") as arquivo:
+        sql = arquivo.read()
+    with engine.connect() as conexao:
+        conexao.execute(text(sql))
+        conexao.commit()
+    return True
+
+if criar_banco():
+    print("Banco de dados criado com sucesso")
+else:
+    print("Erro ao criar banco de dados")
 
 def pegar_schema(engine):
     """
@@ -212,16 +229,31 @@ def generate_data_departamentos(n):
         'Engenharia de Biomédica',
         'Engenharia de Biotecnologia',
         'Engenharia de Biofármacos',
-        'Engenharia de Bioprocessos',
-        'Engenharia de Biomateriais',
-        'Engenharia de Biomédica',
-        'Engenharia de Biotecnologia',
-        'Engenharia de Biofármacos',
-        'Engenharia de Bioprocessos',
-        'Engenharia de Biomateriais',
-        'Engenharia de Biomédica',
-        'Engenharia de Biotecnologia',
-        'Engenharia de Biofármacos'
+        'Ciência de Dados',
+        'Inteligência Artificial',
+        'Arquitetura',
+        'Design Gráfico',
+        'Medicina',
+        'Enfermagem',
+        'Odontologia',
+        'Farmácia',
+        'Nutrição',
+        'Educação Física',
+        'Artes Visuais',
+        'Música',
+        'Teatro',
+        'Cinema',
+        'Jornalismo',
+        'Publicidade',
+        'Relações Internacionais',
+        'Ciências Contábeis',
+        'Estatística',
+        'Astronomia',
+        'Geologia',
+        'Oceanografia',
+        'Meteorologia',
+        'Agronomia',
+        'Veterinária'
     ]
     lista_departamentos = []
     letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -272,14 +304,120 @@ def generate_data_disciplinas(n):
         'Engenharia de Automação',
         'Engenharia de Bioprocessos',
         'Engenharia de Biomateriais',
-        'Engenharia de Biomédica',
+        'Engenharia Biomédica',
         'Engenharia de Biotecnologia',
         'Engenharia de Biofármacos',
-        'Engenharia de Bioprocessos',
-        'Engenharia de Biomateriais',
-        'Engenharia de Biomédica',
-        'Engenharia de Biotecnologia',
-        'Engenharia de Biofármacos'
+        'Cálculo I',
+        'Cálculo II',
+        'Cálculo III',
+        'Álgebra Linear',
+        'Estatística',
+        'Probabilidade',
+        'Programação Orientada a Objetos',
+        'Estrutura de Dados',
+        'Algoritmos',
+        'Banco de Dados',
+        'Redes de Computadores',
+        'Sistemas Operacionais',
+        'Inteligência Artificial',
+        'Aprendizado de Máquina',
+        'Processamento de Linguagem Natural',
+        'Visão Computacional',
+        'Robótica',
+        'Arquitetura de Computadores',
+        'Compiladores',
+        'Segurança da Informação',
+        'Desenvolvimento Web',
+        'Desenvolvimento Mobile',
+        'Computação Gráfica',
+        'Realidade Virtual',
+        'Realidade Aumentada',
+        'Computação em Nuvem',
+        'Big Data',
+        'Internet das Coisas',
+        'Blockchain',
+        'Criptografia',
+        'Ética em Computação',
+        'Gestão de Projetos',
+        'Empreendedorismo',
+        'Contabilidade',
+        'Finanças',
+        'Marketing Digital',
+        'Recursos Humanos',
+        'Logística',
+        'Gestão da Qualidade',
+        'Gestão Ambiental',
+        'Sustentabilidade',
+        'Anatomia',
+        'Fisiologia',
+        'Histologia',
+        'Embriologia',
+        'Genética',
+        'Microbiologia',
+        'Imunologia',
+        'Parasitologia',
+        'Farmacologia',
+        'Patologia',
+        'Bioquímica',
+        'Biofísica',
+        'Botânica',
+        'Zoologia',
+        'Ecologia',
+        'Geologia',
+        'Climatologia',
+        'Cartografia',
+        'Geopolítica',
+        'Antropologia',
+        'Arqueologia',
+        'Paleontologia',
+        'Literatura Brasileira',
+        'Literatura Portuguesa',
+        'Gramática',
+        'Redação',
+        'Linguística',
+        'Fonética',
+        'Semântica',
+        'Sintaxe',
+        'Morfologia',
+        'Pragmática',
+        'Tradução',
+        'Interpretação de Texto',
+        'Lógica',
+        'Ética',
+        'Metafísica',
+        'Epistemologia',
+        'Estética',
+        'Política',
+        'Teoria do Conhecimento',
+        'Ciência Política',
+        'Relações Internacionais',
+        'Direito Constitucional',
+        'Direito Civil',
+        'Direito Penal',
+        'Direito Administrativo',
+        'Direito Tributário',
+        'Direito Trabalhista',
+        'Direito Empresarial',
+        'Direito Ambiental',
+        'Direito Internacional',
+        'Macroeconomia',
+        'Microeconomia',
+        'Economia Internacional',
+        'Economia Monetária',
+        'Desenvolvimento Econômico',
+        'História Econômica',
+        'Física Quântica',
+        'Física Nuclear',
+        'Termodinâmica',
+        'Mecânica Clássica',
+        'Eletromagnetismo',
+        'Óptica',
+        'Acústica',
+        'Química Orgânica',
+        'Química Inorgânica',
+        'Química Analítica',
+        'Físico-Química',
+        'Química Ambiental'
     ]
     lista_disciplinas = []
     def get_ids_departamentos():
@@ -323,7 +461,34 @@ def generate_data_curso(n):
         'Engenharia de Bioprocessos',
         'Engenharia de Biomateriais',
         'Ciência da Computação',
-        'Ciência de Dados'
+        'Ciência de Dados',
+        'Administração',
+        'Direito',
+        'Medicina',
+        'Enfermagem',
+        'Psicologia',
+        'Arquitetura e Urbanismo',
+        'Design Gráfico',
+        'Marketing Digital',
+        'Publicidade e Propaganda',
+        'Jornalismo',
+        'Relações Internacionais',
+        'Economia',
+        'Contabilidade',
+        'Nutrição',
+        'Farmácia',
+        'Odontologia',
+        'Fisioterapia',
+        'Educação Física',
+        'Pedagogia',
+        'Letras - Português',
+        'Letras - Inglês',
+        'História',
+        'Geografia',
+        'Filosofia',
+        'Sociologia',
+        'Música',
+        'Artes Visuais'
     ]
     lista_curso = []
     letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -428,20 +593,19 @@ def generate_data_matriz_curricular(n):
     ids_cursos = get_ids_cursos()
     def get_ids_disciplinas():
         disciplinas = pd.read_sql_query("SELECT id FROM disciplinas", conexao)
+        print(disciplinas)
         return disciplinas['id'].tolist()
     def get_semestres(id_curso:int):
         matriz_curricular = pd.read_sql_query("select c.duracao_semestre from curso c where id = %s", conexao, params=(id_curso,))
         return int(matriz_curricular['duracao_semestre'].iloc[0])
     ids_disciplinas = get_ids_disciplinas()
     for id_curso in ids_cursos:
-        quantidade_disciplinas = n
         quantidade_semestres = get_semestres(id_curso)
-        for i in range(quantidade_disciplinas):
-            semestre_calculo = (quantidade_semestres//quantidade_disciplinas)*i
+        for i in range(n):
             matriz_curricular = {
                 'id_curso': id_curso,
                 'id_disciplina': random.choice(ids_disciplinas),
-                'semestre': semestre_calculo,
+                'semestre': faker.random_int(min=1, max=quantidade_semestres),
             }
             lista_matriz_curricular.append(matriz_curricular)
 
@@ -534,17 +698,13 @@ def generate_data_historico_escolar(n):
         return disciplinas['id'].tolist()
     ids_disciplinas = get_ids_disciplinas()
     for id_disciplina in ids_disciplinas:
-        data_conclusao = faker.date_between(start_date='-2500d', end_date='today')
+        data_conclusao = faker.date_between(start_date='-2500d', end_date='-1d')
         for semestre in range(1, 8):
             nota = faker.random_int(min=0, max=10)
-            
-            if data_conclusao> date.today():
-                status = 'Cursando'
+            if nota >= 5:
+                status = 'Aprovado'
             else:
-                if nota >= 5:
-                    status = 'Aprovado'
-                else:
-                    status = 'Reprovado'
+                status = 'Reprovado'
             historico_escolar = {
                 'id_disciplina': id_disciplina,
                 'nota': nota,
@@ -632,6 +792,10 @@ for config in config_dados:
         df = df.drop_duplicates(subset=['id_professor', 'id_departamento'])
     elif config['table'] == 'matriz_curricular':
         df = df.drop_duplicates(subset=['id_curso', 'id_disciplina'])
+    elif config['table'] == 'disciplinas':
+        df = df.drop_duplicates(subset=['nome'])
+    elif config['table'] == 'departamento':
+        df = df.drop_duplicates(subset=['nome'])
     else:   
         df = df.drop_duplicates()
     try:
