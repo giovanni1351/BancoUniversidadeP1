@@ -19,7 +19,7 @@ erDiagram
     Professores_Disciplinas }| -- || Disciplinas : Lecionado_Por
     Professores_Disciplinas }| -- || Professores : Leciona
     DisciplinasAlunos }| -- || Disciplinas: Possui
-
+    Curso || -- || Professores : Cordena
     Tcc }o--|| Professores: Possui
     Tcc ||--|{ Alunos: Possui
     Historico_Escolar }| -- || Disciplinas : Possui
