@@ -82,3 +82,36 @@
     LEFT JOIN professores_disciplinas d on c.id = d.id_disciplina
     LEFT JOIN professores e on d.id_professor = e.id
 */
+
+/*
+ESSA É A CINCO 5555 CARALHO
+4) Para um determinado aluno, mostre os códigos e nomes das diciplinas já cursadas junto com os nomes dos professores que lecionaram a disciplina para o aluno;
+with cte as(
+select 
+a.nome as nome_professor,
+case
+  WHEN is_chefe = 'false' then 'nenhum'
+  else c.nome
+end as departamento,
+coalesce(d.nome, 'nenhum') Coordenacao
+from professores a
+left join professor_departamento b on a.id = b.id_professor
+left join departamento c on b.id_departamento = c.id
+left join curso d on d.id_professor_cordenador = a.id
+
+)
+
+select * from cte
+where 1=1
+and coordenacao <> departamento
+*/
+50. Liste os nomes dos estudantes que não cursaram nenhum curso no departamento de "Engenharia".
+47. Recupere os títulos dos cursos e os nomes dos professores que os ministraram, onde o curso tenha pelo menos 50 alunos matriculados.
+46. Encontre os estudantes que cursaram "Engenharia de Software" e "Redes de Computadores" no mesmo semestre.
+08. Liste os IDs dos professores que ensinam mais de um curso.
+15. Encontre os estudantes que cursaram "Sistemas de Banco de Dados" mas não "Inteligência Artificial".
+16. Liste todos os cursos que foram cursados por estudantes do departamento de "Ciência da Computação" ou do departamento de "Matemática".
+24. Liste os professores que ministraram cursos com mais de 50 alunos matriculados.
+31. Encontre os nomes dos estudantes que cursaram um curso em todos os departamentos.
+35. Recupere os nomes dos estudantes que cursaram disciplinas em mais de 3 departamentos.
+39. Encontre os nomes dos professores que ministraram cursos nos quais todos os alunos receberam nota '10'.
