@@ -1,4 +1,18 @@
-create table public.Alunos(
+ drop table if exists public.Alunos CASCADE
+;drop table if exists public.professores CASCADE
+;drop table if exists public.disciplinas CASCADE
+;drop table if exists public.Professores_Disciplinas CASCADE
+;drop table if exists public.DisciplinasAlunos CASCADE
+;drop table if exists public.Historico_Escolar CASCADE
+;drop table if exists public.Matriz_Curricular CASCADE
+;drop table if exists public.Curso CASCADE
+;drop table if exists public.Professor_Departamento CASCADE
+;drop table if exists public.Departamento CASCADE
+;drop table if exists public.Tcc CASCADE
+;drop table if exists public.Aluno_Historico_Escolar CASCADE
+
+
+;create table public.Alunos(
 	id SERIAL not null primary key,
 	nome VARCHAR(100) not null,
 	registro VARCHAR(10) not null,
@@ -8,8 +22,6 @@ create table public.Alunos(
 	data_fim date,
 	id_curso int,
 	id_tcc int
-	
-	
 )
 
 ;create table public.professores(
@@ -50,12 +62,12 @@ create table public.Alunos(
 )
 
 ;create table public.Historico_Escolar(
-	   id serial not null primary key 
-	  ,id_disciplina int not null
-	  ,nota float not null
-	  ,status varchar(255) not null
-	  ,data_conclusao date not null
-	  ,semestre int not null 
+	id serial not null primary key 
+	,id_disciplina int not null
+	,nota float not null
+	,status varchar(255) not null
+	,data_conclusao date not null
+	,semestre int not null 
 )
 
 ;create table public.Matriz_Curricular(
@@ -66,10 +78,11 @@ create table public.Alunos(
 )
 
 ;create table public.Curso(
-	   id serial not null primary key 
-	  ,nome varchar(255) not null
-	  ,codigo varchar(255) not null
-	  ,duracao_semestre int not null
+	 id serial not null primary key 
+	,id_professor_cordenador int not null
+	,nome varchar(255) not null
+	,codigo varchar(255) not null
+	,duracao_semestre int not null
 )
 	
 ;create table public.Professor_Departamento(
@@ -87,11 +100,11 @@ create table public.Alunos(
 )
 
 ;create table public.Tcc(
-	   id serial not null primary key 
-	  ,id_professor int not null
-	  ,titulo varchar(255) not null
-	  ,nota float not null
-	  ,tema varchar(255) not null
+	id serial not null primary key 
+	,id_professor int not null
+	,titulo varchar(255) not null
+	,nota float not null
+	,tema varchar(255) not null
 )
 
 ;create table public.Aluno_Historico_Escolar(
