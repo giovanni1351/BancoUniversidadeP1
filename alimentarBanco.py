@@ -488,7 +488,14 @@ def generate_data_curso(n):
         'Filosofia',
         'Sociologia',
         'Música',
-        'Artes Visuais'
+        'Artes Visuais',
+        'Rede de Computadores',
+        'Sistemas Operacionais',
+        'Inteligência Artificial',
+        'Aprendizado de Máquina',
+        'Processamento de Linguagem Natural',
+        'Visão Computacional',
+        'Robótica'
     ]
     lista_curso = []
     letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'

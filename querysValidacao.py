@@ -7,23 +7,21 @@ e relações corretas entre as tabelas.
 """
 import sqlalchemy
 from sqlalchemy import create_engine, inspect, text
-import sys # Para sair se a conexão falhar
+import sys
 
 def criar_conexao() -> sqlalchemy.engine.Engine | None:
     """Cria e retorna uma conexão com o banco de dados."""
     try:
-        # Fetch variables
         USER = 'postgres.bwvqneansuqchkccmhxq'
         PASSWORD = 'Feisenha123##'
         HOST ='aws-0-sa-east-1.pooler.supabase.com'
         PORT = 5432
         DBNAME = 'postgres'
-        SCHEMA = 'public' # Definindo o schema padrão
+        SCHEMA = 'public'
 
-        # Construct the SQLAlchemy connection string
+        
         DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?options=-csearch_path%3D{SCHEMA}"
         engine = create_engine(DATABASE_URL)
-        # Testa a conexão
         with engine.connect() as connection:
             print("Conexão com o banco de dados estabelecida com sucesso.")
         return engine
@@ -53,18 +51,14 @@ def pegar_informacoes_schema(engine: sqlalchemy.engine.Engine, schema: str = 'pu
                 'primary_keys': primary_keys
             }
 
-            # Pega as chaves estrangeiras para esta tabela
             fks = inspector.get_foreign_keys(tabela, schema=schema)
             for fk in fks:
-                 # Adiciona informações da FK à lista geral
-                 # Garante que constrained_columns e referred_columns sejam listas
                 constrained_columns = fk['constrained_columns'] if isinstance(fk['constrained_columns'], list) else [fk['constrained_columns']]
                 referred_columns = fk['referred_columns'] if isinstance(fk['referred_columns'], list) else [fk['referred_columns']]
 
                 if len(constrained_columns) != len(referred_columns):
                      print(f"Aviso: Número de colunas inconsistente na FK da tabela '{tabela}': {fk['name']}")
-                     continue # Pula esta FK se for inconsistente
-
+                     continue
                 fk_info = {
                     'referencing_table': tabela,
                     'referencing_columns': constrained_columns,
@@ -76,7 +70,6 @@ def pegar_informacoes_schema(engine: sqlalchemy.engine.Engine, schema: str = 'pu
 
     except Exception as e:
         print(f"Erro ao inspecionar o schema '{schema}': {e}")
-        # Retorna o que conseguiu coletar até o momento
         return schema_info
 
     return schema_info
@@ -120,31 +113,18 @@ def gerar_querys_validacao(schema_info: dict, schema: str = 'public') -> list[tu
         LEFT JOIN "{schema}"."{tabela_destino}" t2 ON {join_conditions}
         WHERE ({where_null_check}) AND ({where_origem_not_null});
         """
-        # Limpa espaços extras da query multi-linha
         querys_validacao.append((descricao, " ".join(query.split())))
 
-    # 3. Validar participação mínima em relações N:M (baseado no README)
-    # Lista de tuplas: (tabela_principal, pk_principal, tabela_associacao, fk_associacao_para_principal)
     relacoes_nm = [
-        # Prof_Depart <-> Professores
         ('professores', 'id', 'professor_departamento', 'id_professor'),
-        # Prof_Depart <-> Departamento
         ('departamento', 'id', 'professor_departamento', 'id_departamento'),
-        # Professores_Disciplinas <-> Professores
         ('professores', 'id', 'professores_disciplinas', 'id_professor'),
-        # Professores_Disciplinas <-> Disciplinas
         ('disciplinas', 'id', 'professores_disciplinas', 'id_disciplina'),
-        # Matriz_Curricular <-> Curso
         ('curso', 'id', 'matriz_curricular', 'id_curso'),
-        # Matriz_Curricular <-> Disciplinas
         ('disciplinas', 'id', 'matriz_curricular', 'id_disciplina'),
-        # Aluno_Historico_Escolar <-> Alunos (Assumindo lowercase para FK 'id_aluno')
         ('alunos', 'id', 'aluno_historico_escolar', 'id_aluno'),
-        # Aluno_Historico_Escolar <-> Historico_Escolar (Assumindo lowercase para FK 'id_historico_escolar')
         ('historico_escolar', 'id', 'aluno_historico_escolar', 'id_historico_escolar'),
-         # DisciplinasAlunos <-> Disciplinas
         ('disciplinas', 'id', 'disciplinasalunos', 'id_disciplina'),
-        # DisciplinasAlunos <-> Alunos
         ('alunos', 'id', 'disciplinasalunos', 'id_aluno'),
     ]
 
@@ -159,7 +139,6 @@ def gerar_querys_validacao(schema_info: dict, schema: str = 'public') -> list[tu
             LEFT JOIN "{schema}"."{tabela_associacao}" t2 ON t1."{pk_principal}" = t2."{fk_associacao}"
             WHERE t2."{fk_associacao}" IS NULL;
             """
-            print(query)
             querys_validacao.append((descricao, " ".join(query.split())))
         else:
             print(f"  AVISO: Pulando validação N:M para '{tabela_principal}' <-> '{tabela_associacao}' pois uma ou ambas as tabelas não foram encontradas no schema.")
@@ -177,14 +156,11 @@ def executar_validacoes(engine: sqlalchemy.engine.Engine, querys: list[tuple[str
         for descricao, query in querys:
             try:
                 print(f"Executando validação: {descricao}")
-                # print(f"  Query: {query}") # Descomente para depurar as queries
                 result = connection.execute(text(query))
-                count = result.scalar_one_or_none() # Pega o resultado do COUNT(1)
+                count = result.scalar_one_or_none()
 
                 if count is None:
                      print(f"  AVISO: A query não retornou um count. Query: {query}")
-                     # Você pode decidir tratar isso como falha ou não
-                     # todas_passaram = False
                 elif count > 0:
                     print(f"  FALHA: A validação encontrou {count} linha(s) inválida(s).")
                     print(f"  Query: {query}")
@@ -195,8 +171,8 @@ def executar_validacoes(engine: sqlalchemy.engine.Engine, querys: list[tuple[str
             except Exception as e:
                 print(f"  ERRO ao executar a query de validação: {e}")
                 print(f"  Query: {query}")
-                todas_passaram = False # Considera erro na execução como falha
-            print("-" * 20) # Separador
+                todas_passaram = False 
+            print("-" * 20) 
 
     return todas_passaram
 
@@ -229,8 +205,7 @@ if __name__ == "__main__":
                     print("✅ Todas as validações foram executadas com sucesso e passaram!")
                 else:
                     print("❌ Algumas validações falharam ou encontraram erros.")
-        # Fecha a engine ao final
         engine.dispose()
     else:
         print("Não foi possível conectar ao banco. Saindo.")
-        sys.exit(1) # Sai com código de erro
+        sys.exit(1) 
