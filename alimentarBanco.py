@@ -928,7 +928,7 @@ def gerar_querys_validacao(schema_info: dict, schema: str = 'public') -> list[tu
                 query = f'SELECT COUNT(1) FROM "{schema}"."{tabela}" WHERE "{nome_coluna}" IS NULL;'
                 querys_validacao.append((descricao, query))
 
-    # 2. Validar integridade referencial (FKs)
+
     for fk in schema_info.get('foreign_keys', []):
         tabela_origem = fk['referencing_table']
         colunas_origem = fk['referencing_columns']
