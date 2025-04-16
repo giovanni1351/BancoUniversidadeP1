@@ -38,18 +38,18 @@
         a.tema,
         a.nota,
         b.nome as nome_professor,
-        c.nome as nome_alunos,
-        a.id as id_tcc
+        c.nome as nome_alunos
     FROM tcc a
-    LEFT JOIN professores b on a.id_professor = b.id
-    LEFT JOIN alunos c on a.id = c.id_tcc
+    INNER JOIN professores b on a.id_professor = b.id
+    INNER JOIN alunos c on a.id = c.id_tcc
     WHERE 1 = 1
-        and b.nome = 'Eloá Cassiano'
+    --and b.nome = 'nome do professor que voce deseja'
+        
 */
 /*
 3) Mostre a matriz curicular de pelo menos 2 cursos diferentes que possuem disciplinas em comum 
 (e.g., Ciência da Computação e Ciência de Dados). Este exercício deve ser dividido em 2 queries sendo uma para cada curso
-    with cte as (
+    ;with cte as (
         select 
         a.*,
         b.nome as nome_curso,
@@ -61,8 +61,9 @@
         LEFT JOIN disciplinas c on a.id_disciplina = c.id
     )
 
-    select 
-        * 
+    select
+    nome_curso,
+    nome_disciplina 
     from cte 
     where 1 = 1
         and dp > 1
@@ -73,14 +74,15 @@
 4) Para um determinado aluno, mostre os códigos e nomes das diciplinas já cursadas junto com os nomes dos professores que lecionaram a disciplina para o aluno;
     SELECT 
         b.nome as nome_aluno,
-        c.nome as nome disciplinas,
-        a.id_disciplina as cod_disciplina,
+        c.nome as nome_disciplina,
+        c.cod_disciplina,
         e.nome as nome_professor
     FROM disciplinasalunos a
     LEFT JOIN alunos b on a.id_aluno = b.id
     LEFT JOIN disciplinas c on a.id_disciplina = c.id
     LEFT JOIN professores_disciplinas d on c.id = d.id_disciplina
     LEFT JOIN professores e on d.id_professor = e.id
+    --WHERE b.nome = 'nome do aluno que voce deseja'
 */
 
 
