@@ -8,7 +8,8 @@ from sqlalchemy import create_engine, text, inspect
 import pandas as pd
 from faker import Faker
 import json
-
+import time
+import sys
 import sqlalchemy
 config_dados = [
     {
@@ -86,9 +87,9 @@ def criar_conexao()->sqlalchemy.engine.Engine:
     engine = create_engine(DATABASE_URL)
     return engine
 
-engine = criar_conexao()
 
-def criar_banco():
+
+def criar_banco(engine:sqlalchemy.engine.Engine):
     """
     Cria o banco de dados
     """
@@ -99,42 +100,26 @@ def criar_banco():
         conexao.commit()
     return True
 
-if criar_banco():
-    print("Banco de dados criado com sucesso")
-else:
-    print("Erro ao criar banco de dados")
 
-def pegar_schema(engine):
+
+def pegar_schema(engine:sqlalchemy.engine.Engine):
     """
     Pega o schema do banco de dados utilizando o SQLAlchemy inspector
     """
     schema = ""
-        # Instanciando o inspetor
     inspector = inspect(engine)
-
-    # Lista todas as tabelas
     tabelas = inspector.get_table_names(schema='public')
 
     for tabela in tabelas:
         schema+= f"\n📄 Tabela: {tabela}\n"
-        # print(f"\n📄 Tabela: {tabela}")
-        
-        # Colunas
         colunas = inspector.get_columns(tabela, schema='public')
         for col in colunas:
             schema+=f"  🧱 Coluna: {col['name']} - Tipo: {col['type']}\n"
-            # print(f"  🧱 Coluna: {col['name']} - Tipo: {col['type']}")
-
-        # Chave primária
         pk = inspector.get_pk_constraint(tabela, schema='public')
         schema +=f"  🔑 Chave Primária: {pk.get('constrained_columns', [])}\n"
-        # print(f"  🔑 Chave Primária: {pk.get('constrained_columns', [])}")
-
-        # Chaves estrangeiras
         fks = inspector.get_foreign_keys(tabela, schema='public')
         for fk in fks:
             schema +=f"  🔗 FK: {fk['constrained_columns']} → {fk['referred_table']}.{fk['referred_columns']}\n"
-            # print(f"  🔗 FK: {fk['constrained_columns']} → {fk['referred_table']}.{fk['referred_columns']}")
 
     return schema
 
@@ -151,13 +136,8 @@ def truncar_todo_banco(engine:sqlalchemy.engine.Engine):
         print(f"Tabela {tabela} truncada com sucesso")
     return True
 
-schema = pegar_schema(engine)
-print(schema)
-with open('Schema.md', 'w', encoding='utf-8') as arquivo:
-    arquivo.write(schema)
 faker = Faker('pt_BR') 
 
-conexao = criar_conexao()
 def generate_data_professores(n):
     """ Tabela: professores
         🧱 Coluna: id - Tipo: INTEGER
@@ -193,13 +173,26 @@ def generate_data_departamentos(n):
         🔑 Chave Primária: ['id']
     """
     predios = [
-        'Predio 1',
-        'Predio 2',
-        'Predio 3',
-        'Predio 4',
-        'Predio 5',
-        'Predio 6',
-        'Predio 7'
+        'Torre do Conhecimento',
+        'Pavilhão das Ciências',
+        'Complexo Einstein',
+        'Edifício Hawking',
+        'Centro de Inovação Tesla',
+        'Bloco da Sabedoria',
+        'Ala Newton',
+        'Prédio Galileu',
+        'Complexo Curie',
+        'Pavilhão da Tecnologia',
+        'Centro Acadêmico Darwin',
+        'Torre dos Pensadores',
+        'Edifício das Artes',
+        'Bloco da Inspiração',
+        'Ala dos Cientistas',
+        'Complexo Digital',
+        'Pavilhão da Criatividade',
+        'Centro de Pesquisas Avançadas',
+        'Torre da Excelência',
+        'Edifício dos Pioneiros'
     ]
     departamentos = [
         'Matemática',
@@ -600,7 +593,6 @@ def generate_data_matriz_curricular(n):
     ids_cursos = get_ids_cursos()
     def get_ids_disciplinas():
         disciplinas = pd.read_sql_query("SELECT id FROM disciplinas", conexao)
-        print(disciplinas)
         return disciplinas['id'].tolist()
     def get_semestres(id_curso:int):
         matriz_curricular = pd.read_sql_query("select c.duracao_semestre from curso c where id = %s", conexao, params=(id_curso,))
@@ -630,21 +622,58 @@ def generate_data_professores_disciplinas(n):
     🔗 FK: ['id_professor'] → professores.['id']
     """
     lista_professores_disciplinas = []
-    def get_ids_disciplinas():
-        disciplinas = pd.read_sql_query("SELECT id FROM disciplinas", conexao)
-        return disciplinas['id'].tolist()
-    ids_disciplinas = get_ids_disciplinas()
-    def  get_ids_professores():
-        professores = pd.read_sql_query("SELECT id FROM professores", conexao)
-        return professores['id'].tolist()
-    ids_professores = get_ids_professores()
-    for i in range(n):
+    ids_disciplinas = pd.read_sql_query("SELECT id FROM disciplinas", conexao)['id'].tolist()
+    ids_professores = pd.read_sql_query("SELECT id FROM professores", conexao)['id'].tolist()
+
+
+    disciplinas_associadas = set()
+    tentativas_associacao = 0
+    
+    tentativas_associacao = 0
+    max_tentativas = n * 5 
+    while len(disciplinas_associadas) < len(ids_disciplinas) and tentativas_associacao < max_tentativas:
+        id_disciplina = random.choice(ids_disciplinas)
+        id_professor = random.choice(ids_professores)
+        semestre = faker.random_int(min=1, max=8)
+        ano = faker.random_int(min=2020, max=2025)
+        periodo = random.choice(['Matutino', 'Vespertino', 'Noturno'])
+
+        chave = (id_disciplina, id_professor, semestre, ano, periodo)
+        if chave not in {(item['id_disciplina'], item['id_professor'], item['semestre'], item['ano'], item['periodo']) for item in lista_professores_disciplinas}:
+            professores_disciplinas = {
+                'id_disciplina': id_disciplina,
+                'id_professor': id_professor,
+                'semestre': semestre,
+                'ano': ano,
+                'periodo': periodo,
+            }
+            lista_professores_disciplinas.append(professores_disciplinas)
+            disciplinas_associadas.add(id_disciplina)
+        tentativas_associacao += 1
+
+    # Garante que cada disciplina tenha pelo menos uma associação
+    disciplinas_nao_associadas = set(ids_disciplinas) - disciplinas_associadas
+    for id_disciplina in disciplinas_nao_associadas:
+        id_professor = random.choice(ids_professores)
+        semestre = faker.random_int(min=1, max=8)
+        ano = faker.random_int(min=2020, max=2025)
+        periodo = random.choice(['Matutino', 'Vespertino', 'Noturno'])
+
+        # Garante que a chave não seja duplicada (caso raro, mas possível)
+        chave = (id_disciplina, id_professor, semestre, ano, periodo)
+        while chave in {(item['id_disciplina'], item['id_professor'], item['semestre'], item['ano'], item['periodo']) for item in lista_professores_disciplinas}:
+             id_professor = random.choice(ids_professores) # Tenta outro professor
+             semestre = faker.random_int(min=1, max=8)
+             ano = faker.random_int(min=2020, max=2025)
+             periodo = random.choice(['Matutino', 'Vespertino', 'Noturno'])
+             chave = (id_disciplina, id_professor, semestre, ano, periodo)
+
         professores_disciplinas = {
-            'id_disciplina': random.choice(ids_disciplinas),
-            'id_professor': random.choice(ids_professores),
-            'semestre': faker.random_int(min=1, max=8),
-            'ano': faker.random_int(min=2020, max=2025),
-            'periodo': random.choice(['Matutino', 'Vespertino', 'Noturno']),
+            'id_disciplina': id_disciplina,
+            'id_professor': id_professor,
+            'semestre': semestre,
+            'ano': ano,
+            'periodo': periodo,
         }
         lista_professores_disciplinas.append(professores_disciplinas)
 
@@ -735,23 +764,45 @@ def generate_data_aluno_historico_escolar(n):
     🔗 FK: ['id_historico_escolar'] → historico_escolar.['id']
     """
     lista_aluno_historico_escolar = []
-    def get_ids_alunos():
-        alunos = pd.read_sql_query("SELECT id FROM alunos", conexao)
-        return alunos['id'].tolist()
-    ids_alunos = get_ids_alunos()
-    def get_ids_historico_escolar():
-        historico_escolar = pd.read_sql_query("SELECT id FROM historico_escolar", conexao)
-        return historico_escolar['id'].tolist()
-    ids_historico_escolar = get_ids_historico_escolar()
+    ids_alunos = pd.read_sql_query("SELECT id FROM alunos", conexao)['id'].tolist()
+    ids_historico_escolar = pd.read_sql_query("SELECT id FROM historico_escolar", conexao)['id'].tolist()
 
-    for id in ids_alunos:
-        valor_max = faker.random_int(min=1, max=n)
-        for i in range(valor_max):
-            aluno_historico_escolar = {
-                'id_aluno': id,
-                'id_historico_escolar': random.choice(ids_historico_escolar),
-            }
-            lista_aluno_historico_escolar.append(aluno_historico_escolar)
+
+    historicos_associados = set()
+    associacoes_criadas = set() 
+
+    for id_aluno in ids_alunos:
+
+        num_historicos_aluno = faker.random_int(min=1, max=min(n, len(ids_historico_escolar)))
+        historicos_escolhidos = random.sample(ids_historico_escolar, k=min(num_historicos_aluno, len(ids_historico_escolar)))
+
+        for id_hist in historicos_escolhidos:
+            chave = (id_aluno, id_hist)
+            if chave not in associacoes_criadas:
+                aluno_historico_escolar = {
+                    'id_aluno': id_aluno,
+                    'id_historico_escolar': id_hist,
+                }
+                lista_aluno_historico_escolar.append(aluno_historico_escolar)
+                historicos_associados.add(id_hist)
+                associacoes_criadas.add(chave)
+
+    historicos_nao_associados = set(ids_historico_escolar) - historicos_associados
+    for id_hist in historicos_nao_associados:
+        id_aluno = random.choice(ids_alunos)
+        chave = (id_aluno, id_hist)
+
+        while chave in associacoes_criadas:
+            id_aluno = random.choice(ids_alunos) 
+            chave = (id_aluno, id_hist)
+
+        aluno_historico_escolar = {
+            'id_aluno': id_aluno,
+            'id_historico_escolar': id_hist,
+        }
+        lista_aluno_historico_escolar.append(aluno_historico_escolar)
+        associacoes_criadas.add(chave)
+
 
     return lista_aluno_historico_escolar
 
@@ -766,52 +817,295 @@ def generate_data_professor_departamento(n):
     🔗 FK: ['id_professor'] → professores.['id']
     """
     lista_professor_departamento = []
-    def get_ids_professores():
-        professores = pd.read_sql_query("SELECT id FROM professores", conexao)
-        return professores['id'].tolist()
-    ids_professores = get_ids_professores()
-    def get_ids_departamentos():
-        departamentos = pd.read_sql_query("SELECT id FROM departamento", conexao)
-        return departamentos['id'].tolist()
-    ids_departamentos = get_ids_departamentos()
-    
+    ids_professores = pd.read_sql_query("SELECT id FROM professores", conexao)['id'].tolist()
+    ids_departamentos = pd.read_sql_query("SELECT id FROM departamento", conexao)['id'].tolist()
+
+    if not ids_professores or not ids_departamentos:
+        print("Aviso: Não há professores ou departamentos suficientes para criar associações em professor_departamento.")
+        return []
+
+    departamentos_associados = set()
+    associacoes_criadas = set() 
+
     for id_professor in ids_professores:
-        valor_max = faker.random_int(min=1, max=n)
-        for i in range(valor_max):
-            professor_departamento = {
-                'id_professor': id_professor,
-                'id_departamento': random.choice(ids_departamentos),
-                'is_chefe': faker.boolean()
-            }
-            lista_professor_departamento.append(professor_departamento)
+        num_deptos_prof = faker.random_int(min=1, max=min(n, len(ids_departamentos)))
+        deptos_escolhidos = random.sample(ids_departamentos, k=min(num_deptos_prof, len(ids_departamentos)))
+
+        for id_depto in deptos_escolhidos:
+             chave = (id_professor, id_depto)
+             if chave not in associacoes_criadas:
+                professor_departamento = {
+                    'id_professor': id_professor,
+                    'id_departamento': id_depto,
+                    'is_chefe': faker.boolean() 
+                }
+                lista_professor_departamento.append(professor_departamento)
+                departamentos_associados.add(id_depto)
+                associacoes_criadas.add(chave)
+
+    
+    departamentos_nao_associados = set(ids_departamentos) - departamentos_associados
+    for id_depto in departamentos_nao_associados:
+        id_professor = random.choice(ids_professores)
+        chave = (id_professor, id_depto)
+        while chave in associacoes_criadas:
+            id_professor = random.choice(ids_professores) 
+            chave = (id_professor, id_depto)
+
+        professor_departamento = {
+            'id_professor': id_professor,
+            'id_departamento': id_depto,
+            'is_chefe': False 
+        }
+        lista_professor_departamento.append(professor_departamento)
+        associacoes_criadas.add(chave)
+
+
 
     return lista_professor_departamento
 
-if truncar_todo_banco(engine):
-    print("Tabelas truncadas com sucesso")
 
-for config in config_dados:
-    print(f"Iniciando a geração dos dados para a tabela: {config['table']}")
-    func = globals()[config['function']]
-    data = func(config['n'])
-    df = pd.DataFrame(data)
-    if config['table'] == 'professor_departamento':
-        df = df.drop_duplicates(subset=['id_professor', 'id_departamento'])
-    elif config['table'] == 'matriz_curricular':
-        df = df.drop_duplicates(subset=['id_curso', 'id_disciplina'])
-    elif config['table'] == 'disciplinas':
-        df = df.drop_duplicates(subset=['nome'])
-    elif config['table'] == 'departamento':
-        df = df.drop_duplicates(subset=['nome'])
-    else:   
-        df = df.drop_duplicates()
+
+def pegar_informacoes_schema(engine: sqlalchemy.engine.Engine, schema: str = 'public') -> dict:
+    """
+    Pega informações detalhadas do schema (tabelas, colunas, PKs, FKs).
+    """
+    inspector = inspect(engine)
+    schema_info = {
+        'tabelas': {},
+        'foreign_keys': []
+    }
+
     try:
-        df.to_sql(config['table'], conexao, if_exists='append', index=False, schema='public')
-    except Exception as e:
-        print(f"Erro ao gerar dados para a tabela: {config['table']}")
-        print(f"Erro: {e}")
-        print(f"Dados: {df}")
+        tabelas = inspector.get_table_names(schema=schema)
+        for tabela in tabelas:
+            colunas = inspector.get_columns(tabela, schema=schema)
+            pk_constraint = inspector.get_pk_constraint(tabela, schema=schema)
+            primary_keys = pk_constraint['constrained_columns'] if pk_constraint else []
 
+            schema_info['tabelas'][tabela] = {
+                'colunas': colunas,
+                'primary_keys': primary_keys
+            }
+
+            fks = inspector.get_foreign_keys(tabela, schema=schema)
+            for fk in fks:
+                constrained_columns = fk['constrained_columns'] if isinstance(fk['constrained_columns'], list) else [fk['constrained_columns']]
+                referred_columns = fk['referred_columns'] if isinstance(fk['referred_columns'], list) else [fk['referred_columns']]
+
+                if len(constrained_columns) != len(referred_columns):
+                     print(f"Aviso: Número de colunas inconsistente na FK da tabela '{tabela}': {fk['name']}")
+                     continue
+                fk_info = {
+                    'referencing_table': tabela,
+                    'referencing_columns': constrained_columns,
+                    'referred_table': fk['referred_table'],
+                    'referred_columns': referred_columns,
+                    'name': fk['name']
+                }
+                schema_info['foreign_keys'].append(fk_info)
+
+    except Exception as e:
+        print(f"Erro ao inspecionar o schema '{schema}': {e}")
+        return schema_info
+
+    return schema_info
+
+
+def gerar_querys_validacao(schema_info: dict, schema: str = 'public') -> list[tuple[str, str]]:
+    """
+    Gera queries SQL para validar nulidade, integridade referencial e participação em N:M.
+    Retorna uma lista de tuplas (descricao_da_query, query_sql).
+    """
+    querys_validacao = []
+
+    # 1. Validar colunas NOT NULL
+    for tabela, info_tabela in schema_info.get('tabelas', {}).items():
+        for coluna_info in info_tabela.get('colunas', []):
+            if not coluna_info['nullable']:
+                nome_coluna = coluna_info['name']
+                descricao = f"Verifica NULL na coluna {schema}.{tabela}.{nome_coluna} (NOT NULL)"
+                query = f'SELECT COUNT(1) FROM "{schema}"."{tabela}" WHERE "{nome_coluna}" IS NULL;'
+                querys_validacao.append((descricao, query))
+
+    # 2. Validar integridade referencial (FKs)
+    for fk in schema_info.get('foreign_keys', []):
+        tabela_origem = fk['referencing_table']
+        colunas_origem = fk['referencing_columns']
+        tabela_destino = fk['referred_table']
+        colunas_destino = fk['referred_columns']
+        fk_name = fk['name']
+
+        # Monta as condições do JOIN e do WHERE
+        join_conditions = " AND ".join([f't1."{orig}" = t2."{dest}"' for orig, dest in zip(colunas_origem, colunas_destino)])
+        where_null_check = " OR ".join([f't2."{dest}" IS NULL' for dest in colunas_destino]) # Se qualquer parte da PK referenciada for nula, o join falha
+        # Verifica apenas FKs que não são nulas na origem
+        where_origem_not_null = " AND ".join([f't1."{orig}" IS NOT NULL' for orig in colunas_origem])
+
+
+        descricao = f"Verifica registros órfãos na tabela '{tabela_origem}' pela FK '{fk_name}' para '{tabela_destino}'"
+        query = f"""
+        SELECT COUNT(1)
+        FROM "{schema}"."{tabela_origem}" t1
+        LEFT JOIN "{schema}"."{tabela_destino}" t2 ON {join_conditions}
+        WHERE ({where_null_check}) AND ({where_origem_not_null});
+        """
+        querys_validacao.append((descricao, " ".join(query.split())))
+
+    relacoes_nm = [
+        ('professores', 'id', 'professor_departamento', 'id_professor'),
+        ('departamento', 'id', 'professor_departamento', 'id_departamento'),
+        ('professores', 'id', 'professores_disciplinas', 'id_professor'),
+        ('disciplinas', 'id', 'professores_disciplinas', 'id_disciplina'),
+        ('curso', 'id', 'matriz_curricular', 'id_curso'),
+        ('disciplinas', 'id', 'matriz_curricular', 'id_disciplina'),
+        ('alunos', 'id', 'aluno_historico_escolar', 'id_aluno'),
+        ('historico_escolar', 'id', 'aluno_historico_escolar', 'id_historico_escolar'),
+        ('disciplinas', 'id', 'disciplinasalunos', 'id_disciplina'),
+        ('alunos', 'id', 'disciplinasalunos', 'id_aluno'),
+    ]
+
+    print("\n--- Iniciando validações de participação N:M ---")
+    for tabela_principal, pk_principal, tabela_associacao, fk_associacao in relacoes_nm:
+        # Verifica se as tabelas existem no schema antes de gerar a query
+        if tabela_principal in schema_info.get('tabelas', {}) and tabela_associacao in schema_info.get('tabelas', {}):
+            descricao = f"Verifica se todo(a) '{tabela_principal}' possui pelo menos um registro em '{tabela_associacao}'"
+            query = f"""
+            SELECT COUNT(t1."{pk_principal}")
+            FROM "{schema}"."{tabela_principal}" t1
+            LEFT JOIN "{schema}"."{tabela_associacao}" t2 ON t1."{pk_principal}" = t2."{fk_associacao}"
+            WHERE t2."{fk_associacao}" IS NULL;
+            """
+            querys_validacao.append((descricao, " ".join(query.split())))
+        else:
+            print(f"  AVISO: Pulando validação N:M para '{tabela_principal}' <-> '{tabela_associacao}' pois uma ou ambas as tabelas não foram encontradas no schema.")
+    print("--- Fim validações N:M ---")
+
+    return querys_validacao
+
+def executar_validacoes(engine: sqlalchemy.engine.Engine, querys: list[tuple[str, str]]) -> bool:
+    """
+    Executa as queries de validação e reporta falhas.
+    Retorna True se todas as validações passaram, False caso contrário.
+    """
+    todas_passaram = True
+    with engine.connect() as connection:
+        for descricao, query in querys:
+            try:
+                print(f"Executando validação: {descricao}")
+                result = connection.execute(text(query))
+                count = result.scalar_one_or_none()
+
+                if count is None:
+                     print(f"  AVISO: A query não retornou um count. Query: {query}")
+                elif count > 0:
+                    print(f"  FALHA: A validação encontrou {count} linha(s) inválida(s).")
+                    print(f"  Query: {query}")
+                    todas_passaram = False
+                else:
+                    print("  SUCESSO: Nenhuma linha inválida encontrada.")
+                    pass
+
+            except Exception as e:
+                print(f"  ERRO ao executar a query de validação: {e}")
+                print(f"  Query: {query}")
+                todas_passaram = False 
+            print("-" * 20) 
+
+    return todas_passaram
+
+
+
+
+
+if __name__ == "__main__":
+    
+    schema_banco = 'public'
+    
+    conexao = criar_conexao()
+    print("Criando banco de dados...",end="\n\n\n")
+    if criar_banco(conexao):
+        print("Banco de dados criado com sucesso")
+    else:
+        print("Erro ao criar banco de dados")
+
+    print("Pegando o schema do markdown bonitinho...",end="\n\n\n")
+    schema = pegar_schema(conexao)
+    print(schema)
+    with open('Schema.md', 'w', encoding='utf-8') as arquivo:
+        arquivo.write(schema)
+    print("Schema salvo em Schema.md")
+    print("-" * 20,end="\n\n\n")
+    print("Truncando tabelas...",end="\n\n\n")
+    if truncar_todo_banco(conexao):
+        print("Tabelas truncadas com sucesso")
+    print("Iniciando a geração dos dados...",end="\n\n\n")
+    for config in config_dados:
+        print(f"Iniciando a geração dos dados para a tabela: {config['table']}")
+        func = globals()[config['function']]
+        data = func(config['n'])
+        df = pd.DataFrame(data)
+        if config['table'] == 'professor_departamento':
+            df = df.drop_duplicates(subset=['id_professor', 'id_departamento'])
+        elif config['table'] == 'matriz_curricular':
+            df = df.drop_duplicates(subset=['id_curso', 'id_disciplina'])
+        elif config['table'] == 'disciplinas':
+            df = df.drop_duplicates(subset=['nome'])
+        elif config['table'] == 'departamento':
+            df = df.drop_duplicates(subset=['nome'])
+        else:   
+            df = df.drop_duplicates()
+        try:
+            df.to_sql(config['table'], conexao, if_exists='append', index=False, schema='public')
+            print(f"Dados gerados para a tabela: {config['table']}")
+            print("-" * 20)
+        except Exception as e:
+            print(f"Erro ao gerar dados para a tabela: {config['table']}")
+            print(f"Erro: {e}")
+            print(f"Dados: {df}")
+    
+
+    print("Iniciando a validação dos dados...",end="\n\n\n")
+    if conexao:
+        print(f"\nInspecionando o schema '{schema_banco}'...")
+        schema_info = pegar_informacoes_schema(conexao, schema=schema_banco)
+        
+        if not schema_info.get('tabelas'):
+             print("Nenhuma tabela encontrada no schema ou erro ao buscar informações.")
+        else:
+            print("Informações do schema:")
+            for tabela, info_tabela in schema_info.get('tabelas', {}).items():
+                print(f"Tabela: {tabela}")
+            for coluna in info_tabela.get('colunas', []):
+                print(f"Coluna: {coluna['name']} - Tipo: {coluna['type']}")
+            
+            print("-" * 20)
+            for fk in schema_info.get('foreign_keys', []):
+                print(f"FK: {fk['name']} - Tabela de origem: {fk['referencing_table']} - Tabela de destino: {fk['referred_table']} - Colunas de origem: {fk['referencing_columns']} - Colunas de destino: {fk['referred_columns']}")
+
+
+
+        if schema_info.get('tabelas'):
+            print("\nGerando queries de validação...")
+            print("Esperando 10 segundos...")
+            time.sleep(10)
+            querys_validacao = gerar_querys_validacao(schema_info, schema=schema_banco)
+
+            if not querys_validacao:
+                print("Nenhuma query de validação foi gerada.")
+            else:
+                print(f"\nIniciando {len(querys_validacao)} validações...")
+                resultado_final = executar_validacoes(conexao, querys_validacao)
+
+                print("\n--- Resultado Final da Validação ---")
+                if resultado_final:
+                    print("✅ Todas as validações foram executadas com sucesso e passaram!")
+                else:
+                    print("❌ Algumas validações falharam ou encontraram erros.")
+        conexao.dispose()
+    else:
+        print("Não foi possível conectar ao banco. Saindo.")
+        sys.exit(1) 
 
 
 
