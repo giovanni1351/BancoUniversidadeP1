@@ -134,12 +134,197 @@ LEFT JOIN ALUNOS_ENG B ON A.id = B.id_aluno
 WHERE 1 = 1
 	AND B.ID_ALUNO IS NULL
 */
-47. Recupere os títulos dos cursos e os nomes dos professores que os ministraram, onde o curso tenha pelo menos 50 alunos matriculados.
-46. Encontre os estudantes que cursaram "Engenharia de Software" e "Redes de Computadores" no mesmo semestre.
-08. Liste os IDs dos professores que ensinam mais de um curso.
-15. Encontre os estudantes que cursaram "Sistemas de Banco de Dados" mas não "Inteligência Artificial".
-16. Liste todos os cursos que foram cursados por estudantes do departamento de "Ciência da Computação" ou do departamento de "Matemática".
-24. Liste os professores que ministraram cursos com mais de 50 alunos matriculados.
-31. Encontre os nomes dos estudantes que cursaram um curso em todos os departamentos.
-35. Recupere os nomes dos estudantes que cursaram disciplinas em mais de 3 departamentos.
-39. Encontre os nomes dos professores que ministraram cursos nos quais todos os alunos receberam nota '10'.
+
+/*
+47) Recupere os títulos dos cursos e os nomes dos professores que os ministraram, onde o curso tenha pelo menos 5 alunos matriculados.
+
+;WITH CURSOS_SELECIONADOS AS (
+	SELECT
+		B.id
+		,B.nome
+		,COUNT(*) AS NUMERO_ALUNOS
+	FROM alunos A
+	INNER JOIN curso B ON A.id_curso = B.id
+	GROUP BY
+		B.id, B.nome
+	HAVING 
+		COUNT(*) > 5
+)
+
+SELECT
+	DISTINCT
+		A.nome AS CURSO
+		,E.nome AS PROFESSOR
+FROM CURSOS_SELECIONADOS A
+INNER JOIN matriz_curricular B ON B.id_curso = A.id
+INNER JOIN disciplinas C ON B.id_disciplina = C.id
+INNER JOIN professores_disciplinas D ON D.id_disciplina = C.id
+INNER JOIN professores E ON D.id_professor = E.id
+ORDER BY 
+	1
+
+*/
+
+/*
+--46. Encontre os estudantes que cursaram "Engenharia de Software" e "Redes de Computadores" no mesmo semestre.
+
+;WITH ALUNOS_SELECIONADOS AS(
+	SELECT
+		B.id AS id_disciplina
+		,A.id_aluno AS id_aluno
+		,A.semestre_ano
+		,B.nome
+		,ROW_NUMBER() OVER(PARTITION BY id_aluno, semestre_ano ORDER BY id_aluno) DP
+	FROM disciplinasalunos A
+	INNER JOIN disciplinas B ON A.id_disciplina = B.ID
+	WHERE 1 = 1
+		AND B.nome IN ('Engenharia de Software', 'Redes de Computadores')
+)
+SELECT
+	*
+FROM alunos A
+INNER JOIN ALUNOS_SELECIONADOS B ON A.ID = B.ID_ALUNO
+WHERE 1 = 1
+	AND DP = 2
+*/
+
+/*
+--08. Liste os IDs dos professores que ensinam mais de um curso.
+;WITH PROFESSORES_SELECIONADOS AS (
+	SELECT
+		id_professor
+		,COUNT(DISTINCT ID_CURSO)
+	FROM professores_disciplinas A
+	INNER JOIN matriz_curricular B ON A.id_disciplina = B.id_disciplina
+	GROUP BY
+		id_professor
+	HAVING 
+		COUNT(DISTINCT ID_CURSO) > 2
+)
+SELECT
+	id_professor
+FROM PROFESSORES_SELECIONADOS
+*/
+
+/*
+--15. Encontre os estudantes que cursaram "Engenharia de Software" mas não "Engenharia de Computação".
+
+;WITH ALUNOS_ENG_COMP AS (
+	SELECT
+		id_aluno
+	FROM disciplinasalunos A
+	INNER JOIN disciplinas B ON A.id_disciplina = B.id
+	WHERE 1 = 1
+		AND B.NOME = 'Engenharia de Computação'
+)
+, ALUNOS_ENG_SOFT AS (
+	SELECT
+		id_aluno
+	FROM disciplinasalunos A
+	INNER JOIN disciplinas B ON A.id_disciplina = B.id
+	WHERE 1 = 1
+		AND B.NOME = 'Engenharia de Software'
+)
+, ALUNOS_SELECIONADOS AS (
+	SELECT
+		A.*
+	FROM ALUNOS_ENG_SOFT A
+	LEFT JOIN ALUNOS_ENG_COMP B ON A.ID_ALUNO = B.id_aluno
+	WHERE 1 = 1
+		AND B.ID_ALUNO IS NULL
+)
+
+SELECT
+	B.NOME
+FROM ALUNOS_SELECIONADOS A
+INNER JOIN ALUNOS B ON A.ID_ALUNO = B.ID
+*/
+
+/*
+--16. Liste todos os cursos que foram cursados por estudantes do departamento de "Ciência da Computação" ou do departamento de "Matemática".
+
+SELECT
+	DISTINCT
+		E.nome
+FROM alunos A 
+INNER JOIN disciplinasalunos B ON A.id = B.id_aluno
+INNER JOIN disciplinas C ON B.id_disciplina = C.id
+INNER JOIN departamento D ON C.id_departamento = D.id
+INNER JOIN curso E ON A.id_curso = E.id
+WHERE 1 = 1
+	AND D.nome IN ('Engenharia de Computação', 'Matemática')
+*/
+
+/*
+--31. Encontre os nomes dos estudantes que cursaram um curso em todos os departamentos.
+
+SELECT
+	 A.id
+	,COUNT(D.ID)
+FROM alunos A 
+INNER JOIN disciplinasalunos B ON A.id = B.id_aluno
+INNER JOIN disciplinas C ON B.id_disciplina = C.id
+INNER JOIN departamento D ON C.id_departamento = D.id
+INNER JOIN curso E ON A.id_curso = E.id
+WHERE 1 = 1
+GROUP BY
+	A.ID
+HAVING COUNT(D.ID) = (SELECT COUNT(ID) FROM departamento)
+*/
+
+/*
+--35. Recupere os nomes dos estudantes que cursaram disciplinas em mais de 3 departamentos.
+
+SELECT
+	 A.nome
+	,COUNT(C.id_departamento)
+FROM alunos A 
+INNER JOIN disciplinasalunos B ON A.id = B.id_aluno
+INNER JOIN disciplinas C ON B.id_disciplina = C.id
+WHERE 1 = 1
+GROUP BY
+	A.ID
+HAVING COUNT(C.id_departamento) > 3
+*/
+
+/*
+--39. Encontre os nomes dos professores que ministraram cursos nos quais todos os alunos receberam nota '10'.
+
+;WITH CURSOS_SELECIONADOS AS (
+	SELECT
+		 A.id_curso
+		,COUNT(*)
+		,SUM(NOTA)
+	FROM ALUNOS A
+	INNER JOIN curso B ON A.id_curso = B.ID
+	INNER JOIN aluno_historico_escolar C ON A.ID = C.id_aluno
+	INNER JOIN historico_escolar D ON C.id_historico_escolar = D.ID
+	WHERE 1 = 1
+	GROUP BY A.id_curso
+	HAVING (COUNT(*)*10) = SUM(nota)
+	ORDER BY A.id_curso
+)
+SELECT 
+	DISTINCT
+		E.nome
+FROM CURSOS_SELECIONADOS A
+INNER JOIN ALUNOS B ON A.ID_CURSO = B.id_curso
+INNER JOIN disciplinasalunos C ON B.id = C.id_aluno
+INNER JOIN professores_disciplinas D ON C.id_disciplina = D.id_disciplina
+INNER JOIN professores E ON D.id_professor = E.id
+*/
+
+/*
+--21. Liste os cursos que são ministrados pelo professor 'I001', juntamente com os títulos dos cursos.
+
+SELECT 
+	DISTINCT
+		A.nome
+FROM CURSO A
+INNER JOIN ALUNOS B ON A.ID = B.id_curso
+INNER JOIN disciplinasalunos C ON B.id = C.id_aluno
+INNER JOIN professores_disciplinas D ON C.id_disciplina = D.id_disciplina
+INNER JOIN professores E ON D.id_professor = E.id
+WHERE 1 = 1
+	AND E.id = 2
+*/
