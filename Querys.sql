@@ -85,7 +85,10 @@
 
 /*
 ESSA É A CINCO 5555 CARALHO
-4) Para um determinado aluno, mostre os códigos e nomes das diciplinas já cursadas junto com os nomes dos professores que lecionaram a disciplina para o aluno;
+5) Liste todos os chefes de departamento e coordenadores de curso em apenas uma query de forma que a primeira coluna seja o nome do professor, 
+    a segunda o nome do departamento coordena e a terceira o nome do curso que coordena. 
+    Substitua os campos em branco do resultado da query pelo texto "nenhum"
+
 with cte as(
 select 
 a.nome as nome_professor,
@@ -103,7 +106,8 @@ left join curso d on d.id_professor_cordenador = a.id
 
 select * from cte
 where 1=1
-and coordenacao <> departamento
+    and coordenacao <> departamento
+
 */
 50. Liste os nomes dos estudantes que não cursaram nenhum curso no departamento de "Engenharia".
 47. Recupere os títulos dos cursos e os nomes dos professores que os ministraram, onde o curso tenha pelo menos 50 alunos matriculados.
