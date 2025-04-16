@@ -1,5 +1,5 @@
 
------------------------------------------------ | Querys Obrigatórias | -----------------------------------------------
+------------------------------------------------------------------------ | Querys Solicitadas | ------------------------------------------------------------------------
 /*
 1) Mostre todo o histórico escolar de um aluno que teve reprovação em uma disciplina, retornando inclusive a reprovação em um semestre e a aprovação no semestre seguinte
 
@@ -83,8 +83,8 @@
     LEFT JOIN professores e on d.id_professor = e.id
 */
 
+
 /*
-ESSA É A CINCO 5555 CARALHO
 5) Liste todos os chefes de departamento e coordenadores de curso em apenas uma query de forma que a primeira coluna seja o nome do professor, 
     a segunda o nome do departamento coordena e a terceira o nome do curso que coordena. 
     Substitua os campos em branco do resultado da query pelo texto "nenhum"
@@ -109,7 +109,31 @@ where 1=1
     and coordenacao <> departamento
 
 */
-50. Liste os nomes dos estudantes que não cursaram nenhum curso no departamento de "Engenharia".
+
+------------------------------------------------------------------------ | Querys Selecionadas | ------------------------------------------------------------------------
+
+/*
+50) Liste os nomes dos estudantes que não cursaram nenhum curso no departamento de "Engenharia".
+
+;WITH ALUNOS_ENG AS (
+	SELECT
+		DISTINCT
+			A.id AS ID_ALUNO
+	FROM alunos A
+		INNER JOIN disciplinasalunos B ON A.id = B.id_aluno
+		INNER JOIN disciplinas C ON C.id = B.id_disciplina
+		INNER JOIN departamento D ON D.id = C.id_departamento
+	WHERE 1 = 1
+		AND D.NOME = 'Engenharia'
+)
+SELECT
+	DISTINCT
+		A.nome
+FROM alunos A
+LEFT JOIN ALUNOS_ENG B ON A.id = B.id_aluno
+WHERE 1 = 1
+	AND B.ID_ALUNO IS NULL
+*/
 47. Recupere os títulos dos cursos e os nomes dos professores que os ministraram, onde o curso tenha pelo menos 50 alunos matriculados.
 46. Encontre os estudantes que cursaram "Engenharia de Software" e "Redes de Computadores" no mesmo semestre.
 08. Liste os IDs dos professores que ensinam mais de um curso.
